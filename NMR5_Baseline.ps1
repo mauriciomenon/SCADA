@@ -2,11 +2,12 @@
 # Autor: Mauricio Menon
 # 15/06/2023  SMIN.DT
 # Desenvolvido para PowerShell 5.1, versão instalada por padrão no WS2012R2 e W10
+# Utiliza portas 445 e 139 para conexão com os servidores/consoles
 # Versao 1.0  utilizada no TAF e Comissionamento do SCADA NMR5
 # TO DO
 # - Setar codificação para caracteres diacríticos
 # - Reimplantar scriptblock que foi retirado para debug
-# - Padronziar nome do csv
+# - Padronizar nome do csv
 
 # Definicao de lista de consoles e servidores do EMS(inclui DTS) e PDS
 # EMS Console and Server Lists
@@ -31,7 +32,7 @@ function Clear-AllVariables {
 function Check-AdminPrivileges {
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
-        Write-Host 'Este script deve ser executado com privilégios de administrador.'
+        Write-Host 'Este script deve ser executado com privilegios de administrador.'
     }
     else {
         write-warning 'Usuario Administrador'
@@ -290,15 +291,16 @@ function Get-ConnectionResult {
         $softwareList = Get-RemoteProgram -ComputerName $target -Property DisplayVersion
 
         # Exportar para um arquivo CSV
-        $softwareList | Export-Csv -Path "${targetFileName}.csv" -NoTypeInformation
+        # $softwareList | Export-Csv -Path "${targetFileName}.csv" -NoTypeInformation
+        $softwareList | Export-Csv -Path "$OutputPath\${target}.csv"  -NoTypeInformation
 
         #Filtrar a lista de programas e escrever em um arquivo .txt
         $target | Out-File -FilePath "$OutputPath\${target}.txt" -Append
         $softwareList | Out-File "$OutputPath\${target}.txt" -Append
        
         # Adicionar a lista de programas ao arquivo Consoles_$domain.txt 
-        $target | Out-File       "$OutputPath\Software_$domain.txt" -Append
-        $softwareList | Out-File "$OutputPath\Software_$domain.txt" -Append
+        $target | Out-File       "$OutputPath\Lista_Geral_Software_$domain.txt" -Append
+        $softwareList | Out-File "$OutputPath\Lista_Geral_Software_$domain.txt" -Append
 
         $connected = $true
     }
@@ -341,7 +343,7 @@ function Connect-ToTargets {
         }
     }
 
-    $FailedConnections | Out-File "$OutputPath\Falhas_comunicacao_$domain.txt"
+    $FailedConnections | Out-File "$OutputPath\Falhas_conexao_$domain.txt"
 
     Write-Host 'Processo concluido.'
 }
@@ -363,3 +365,4 @@ function Connect-ToTargets {
  }
  
  Main
+ 
