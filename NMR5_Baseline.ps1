@@ -29,7 +29,7 @@ function Clear-AllVariables {
 }
 
 # Verificar execução como administrador
-function Check-AdminPrivileges {
+function Test-AdminPrivileges {
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
         Write-Host 'Este script deve ser executado com privilegios de administrador.'
@@ -40,7 +40,7 @@ function Check-AdminPrivileges {
 }
 
 # Verificar a versão do PowerShell
-function Check-PowerShellVersion {
+function Test-PowerShellVersion {
         $psVersion = $PSVersionTable.PSVersion
         $versionFlag = 0
 
@@ -283,9 +283,9 @@ function Get-ConnectionResult {
     $connected = $false
 
     try {
-        $targetFileNameFormat = '{0}\{1}_{2}_{3}'
-        #$targetFileName = $targetFileNameFormat -f $OutputPath, $domain, $target, (Get-Date).ToString('yyyyMMddHHmm')
-        $targetFileName = $targetFileNameFormat -f $OutputPath, $domain, $target, (Get-Date).ToString('yyyyMMdd_HHmm')
+        # Nao mais utilizado, mantido no codigo para referencia de passagem de parametro de formato
+        #$targetFileNameFormat = '{0}\{1}_{2}_{3}'
+        #$targetFileName = $targetFileNameFormat -f $OutputPath, $domain, $target, (Get-Date).ToString('yyyyMMdd_HHmm')
         
         # Obter a lista de programas
         $softwareList = Get-RemoteProgram -ComputerName $target -Property DisplayVersion
@@ -349,10 +349,11 @@ function Connect-ToTargets {
 }
     
  function Main {
-    Check-AdminPrivileges
+    Test-AdminPrivileges
+    # $PSVersion = Test-PowerShellVersion                   # Uso futuro
     $timeout = Get-Timeout
     $domain  = Get-Environment
-    Write-Host $domain
+    Write-Host "Dominio: " $domain
     $targets = Get-TargetList -domain $domain
     #$OutputPath = $PSScriptRoot + '\Resultados_' + $domain + '_' + (Get-Date -Format 'yyyyMMdd_HHmm')
                     $OutputPath = $PSScriptRoot + '\Resultados_' + (Get-Date -Format 'yyyyMMdd_HHmm') + '_' + $domain
