@@ -5,9 +5,8 @@
 # Utiliza portas 445 e 139 para conexão com os servidores/consoles
 # Versao 1.0  utilizada no TAF e Comissionamento do SCADA NMR5
 # TO DO
-# - Setar codificação para caracteres diacríticos
+# - Setar codificação para caracteres com acento
 # - Reimplantar scriptblock que foi retirado para debug
-# - Padronizar nome do csv
 
 # Definicao de lista de consoles e servidores do EMS(inclui DTS) e PDS
 # EMS Console and Server Lists
@@ -356,7 +355,7 @@ function Connect-ToTargets {
     Write-Host "Dominio: " $domain
     $targets = Get-TargetList -domain $domain
     #$OutputPath = $PSScriptRoot + '\Resultados_' + $domain + '_' + (Get-Date -Format 'yyyyMMdd_HHmm')
-                    $OutputPath = $PSScriptRoot + '\Resultados_' + (Get-Date -Format 'yyyyMMdd_HHmm') + '_' + $domain
+    $OutputPath = $PSScriptRoot + '\Resultados_' + (Get-Date -Format 'yyyyMMdd_HHmm') + '_' + $domain
 
     if (-not (Test-Path -Path $OutputPath -PathType Container)) {
         $null = New-Item -ItemType Directory -Path $OutputPath
