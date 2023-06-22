@@ -63,6 +63,19 @@ function Test-PowerShellVersion {
     return $versionFlag
 }
 
+# Função para verificar a versão do sistema operacional
+function Test-OSVersion {
+    $osVersion = (Get-WmiObject -Class Win32_OperatingSystem).Version
+
+    # Verificar se é o Windows Server 2012
+    # if ($osVersion -notmatch '6\.2|6\.3') {       # Aqui testa para ws2012 e ws2016
+    if ($osVersion -notmatch '6\.2') {
+        Write-Host "Atencao: Este script foi otimizado para o Windows Server 2012. Alguns recursos podem nao funcionar corretamente nesta versao do sistema operacional."
+    }
+    return $osVersion
+}
+
+
 # Obter o tempo limite de conexão, utilizado para PS6/7. PS51 nao tem suporte a esse parametro
 # Sera utilizado em futura versao do SIMBA
 function Get-Timeout {
@@ -347,22 +360,29 @@ function Connect-ToTargets {
     Write-Host 'Processo concluido.'
 }
     
- function Main {
+function Main {
+    $domain = Get-Environment
+    $OutputPath = $PSScriptRoot + '\Resultados_' + (Get-Date -Format 'yyyyMMdd_HHmm') + '_' + $domain
+    $logFile = "$OutputPath\" + "LOG_SCRIPT_$domain.txt"
+    Start-Transcript -Path $logFile     #-Append 
     Test-AdminPrivileges
-    # $PSVersion = Test-PowerShellVersion                   # Uso futuro
+    # $PSVersion = Test-PowerShellVersion                 # Uso futuro
+    $OSVersion = Test-OSVersion                           # Uso futuro    
+    Write-Host "Versao do Windows: "  $OSVersion
     $timeout = Get-Timeout
-    $domain  = Get-Environment
+
     Write-Host "Dominio: " $domain
     $targets = Get-TargetList -domain $domain
-    #$OutputPath = $PSScriptRoot + '\Resultados_' + $domain + '_' + (Get-Date -Format 'yyyyMMdd_HHmm')
-    $OutputPath = $PSScriptRoot + '\Resultados_' + (Get-Date -Format 'yyyyMMdd_HHmm') + '_' + $domain
 
     if (-not (Test-Path -Path $OutputPath -PathType Container)) {
         $null = New-Item -ItemType Directory -Path $OutputPath
     }
 
     Connect-ToTargets -OutputPath $OutputPath -attempts $attempts -timeout $timeout -domain $domain -targets $targets
- }
+    Stop-Transcript
+}
+
+
  
  Main
  
