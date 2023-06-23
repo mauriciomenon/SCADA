@@ -1,0 +1,11 @@
+https://github.com/jaapbrasser/SharedScripts/blob/master/Get-RemoteProgram/Get-RemoteProgram.ps1
+
+https://github.com/jaapbrasser/SharedScripts/blob/master/Get-LocalLastLogonTime/Get-LocalLastLogonTime.ps1
+
+
+
+
+
+
+mermaid gpt
+https://medium.com/@ramaswamis/gpt-4-creates-eye-catching-flowcharts-9cf4c3137dcc
