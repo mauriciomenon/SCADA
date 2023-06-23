@@ -148,6 +148,7 @@ function Get-TargetList {
 
 # Função para obter a lista de programas remotos
 # Adaptado de Get-RemoteProgram Author: Jaap Brasser
+# https://github.com/jaapbrasser/SharedScripts/blob/master/Get-RemoteProgram/Get-RemoteProgram.ps1
 function Get-RemoteProgram {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
