@@ -65,19 +65,20 @@ function Test-PowerShellVersion {
 
 # Função para verificar a versão do sistema operacional
 function Test-OSVersion {
-    $osVersion = (Get-WmiObject -Class Win32_OperatingSystem).Version
+    #$osVersion = (Get-WmiObject -Class Win32_OperatingSystem).Version
+    $osVersion = (Get-CimInstance -ClassName CIM_OperatingSystem).Version
 
     # Verificar se é o Windows Server 2012
-    # if ($osVersion -notmatch '6\.2|6\.3') {       # Aqui testa para ws2012 e ws2016
-    if ($osVersion -notmatch '6\.2') {
-        Write-Host "Atencao: Este script foi otimizado para o Windows Server 2012. Alguns recursos podem nao funcionar corretamente nesta versao do sistema operacional."
+    # if ($osVersion -notmatch '6\.2|6\.3') {       # Aqui testa para ws2012 e ws2012r2
+    if ($osVersion -notmatch '6\.3') {
+        Write-Host "Atencao: Este script foi otimizado para o Windows Server 2012 R2. Alguns recursos podem nao funcionar corretamente nesta versao do sistema operacional."
     }
     return $osVersion
 }
 
 
 # Obter o tempo limite de conexão, utilizado para PS6/7. PS51 nao tem suporte a esse parametro
-# Sera utilizado em futura versao do SIMBA
+# Sera utilizado em futura versao
 function Get-Timeout {
     param (     [int]$defaultTimeout = 500     )
     # Verificar a versão do PowerShell
