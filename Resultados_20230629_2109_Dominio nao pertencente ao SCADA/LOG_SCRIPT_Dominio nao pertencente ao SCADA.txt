@@ -1,0 +1,58 @@
+**********************
+PowerShell transcript start
+Start time: 20230629210931
+Username: MacBook-Air-de-Mauricio\menon
+RunAs User: MacBook-Air-de-Mauricio\menon
+Configuration Name: 
+Machine: MacBook-Air-de-Mauricio (Unix 13.4.1)
+Host Application: /usr/local/microsoft/powershell/7/pwsh.dll -Login -NoProfile -EncodedCommand SQBtAHAAbwByAHQALQBNAG8AZAB1AGwAZQAgACcALwBVAHMAZQByAHMALwBtAGUAbgBvAG4ALwAuAHYAcwBjAG8AZABlAC8AZQB4AHQAZQBuAHMAaQBvAG4AcwAvAG0AcwAtAHYAcwBjAG8AZABlAC4AcABvAHcAZQByAHMAaABlAGwAbAAtADIAMAAyADMALgA2AC4AMAAvAG0AbwBkAHUAbABlAHMALwBQAG8AdwBlAHIAUwBoAGUAbABsAEUAZABpAHQAbwByAFMAZQByAHYAaQBjAGUAcwAvAFAAbwB3AGUAcgBTAGgAZQBsAGwARQBkAGkAdABvAHIAUwBlAHIAdgBpAGMAZQBzAC4AcABzAGQAMQAnADsAIABTAHQAYQByAHQALQBFAGQAaQB0AG8AcgBTAGUAcgB2AGkAYwBlAHMAIAAtAEgAbwBzAHQATgBhAG0AZQAgACcAVgBpAHMAdQBhAGwAIABTAHQAdQBkAGkAbwAgAEMAbwBkAGUAIABIAG8AcwB0ACcAIAAtAEgAbwBzAHQAUAByAG8AZgBpAGwAZQBJAGQAIAAnAE0AaQBjAHIAbwBzAG8AZgB0AC4AVgBTAEMAbwBkAGUAJwAgAC0ASABvAHMAdABWAGUAcgBzAGkAbwBuACAAJwAyADAAMgAzAC4ANgAuADAAJwAgAC0AQQBkAGQAaQB0AGkAbwBuAGEAbABNAG8AZAB1AGwAZQBzACAAQAAoACcAUABvAHcAZQByAFMAaABlAGwAbABFAGQAaQB0AG8AcgBTAGUAcgB2AGkAYwBlAHMALgBWAFMAQwBvAGQAZQAnACkAIAAtAEIAdQBuAGQAbABlAGQATQBvAGQAdQBsAGUAcwBQAGEAdABoACAAJwAvAFUAcwBlAHIAcwAvAG0AZQBuAG8AbgAvAC4AdgBzAGMAbwBkAGUALwBlAHgAdABlAG4AcwBpAG8AbgBzAC8AbQBzAC0AdgBzAGMAbwBkAGUALgBwAG8AdwBlAHIAcwBoAGUAbABsAC0AMgAwADIAMwAuADYALgAwAC8AbQBvAGQAdQBsAGUAcwAnACAALQBFAG4AYQBiAGwAZQBDAG8AbgBzAG8AbABlAFIAZQBwAGwAIAAtAFMAdABhAHIAdAB1AHAAQgBhAG4AbgBlAHIAIAAiAFAAbwB3AGUAcgBTAGgAZQBsAGwAIABFAHgAdABlAG4AcwBpAG8AbgAgAHYAMgAwADIAMwAuADYALgAwAAoAQwBvAHAAeQByAGkAZwBoAHQAIAAoAGMAKQAgAE0AaQBjAHIAbwBzAG8AZgB0ACAAQwBvAHIAcABvAHIAYQB0AGkAbwBuAC4ACgAKAGgAdAB0AHAAcwA6AC8ALwBhAGsAYQAuAG0AcwAvAHYAcwBjAG8AZABlAC0AcABvAHcAZQByAHMAaABlAGwAbAAKAFQAeQBwAGUAIAAnAGgAZQBsAHAAJwAgAHQAbwAgAGcAZQB0ACAAaABlAGwAcAAuAAoAIgAgAC0ATABvAGcATABlAHYAZQBsACAAJwBOAG8AcgBtAGEAbAAnACAALQBMAG8AZwBQAGEAdABoACAAJwAvAFUAcwBlAHIAcwAvAG0AZQBuAG8AbgAvAEwAaQBiAHIAYQByAHkALwBBAHAAcABsAGkAYwBhAHQAaQBvAG4AIABTAHUAcABwAG8AcgB0AC8AQwBvAGQAZQAvAFUAcwBlAHIALwBnAGwAbwBiAGEAbABTAHQAbwByAGEAZwBlAC8AbQBzAC0AdgBzAGMAbwBkAGUALgBwAG8AdwBlAHIAcwBoAGUAbABsAC8AbABvAGcAcwAvADEANgA4ADgAMAA0ADkAOQA3ADIALQA0ADcAYgA4ADgAZABlAGIALQBmAGEAYgA1AC0ANAAxAGYAZQAtAGIANAAwADcALQBmADUAZABiADQAYQBhAGMANAA4ADgAYQAxADYAOAA4ADAANAA5ADkAMQAxADUANwAwAC8ARQBkAGkAdABvAHIAUwBlAHIAdgBpAGMAZQBzAC4AbABvAGcAJwAgAC0AUwBlAHMAcwBpAG8AbgBEAGUAdABhAGkAbABzAFAAYQB0AGgAIAAnAC8AVQBzAGUAcgBzAC8AbQBlAG4AbwBuAC8ATABpAGIAcgBhAHIAeQAvAEEAcABwAGwAaQBjAGEAdABpAG8AbgAgAFMAdQBwAHAAbwByAHQALwBDAG8AZABlAC8AVQBzAGUAcgAvAGcAbABvAGIAYQBsAFMAdABvAHIAYQBnAGUALwBtAHMALQB2AHMAYwBvAGQAZQAuAHAAbwB3AGUAcgBzAGgAZQBsAGwALwBzAGUAcwBzAGkAbwBuAHMALwBQAFMARQBTAC0AVgBTAEMAbwBkAGUALQA5ADkANgAxAC0ANAA5ADcAMgAzADkALgBqAHMAbwBuACcAIAAtAEYAZQBhAHQAdQByAGUARgBsAGEAZwBzACAAQAAoACkAIAA=
+Process ID: 10633
+PSVersion: 7.3.4
+PSEdition: Core
+GitCommitId: 7.3.4
+OS: Darwin 22.5.0 Darwin Kernel Version 22.5.0: Thu Jun  8 22:22:19 PDT 2023; root:xnu-8796.121.3~7/RELEASE_ARM64_T8103
+Platform: Unix
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.10032.0, 6.0.0, 6.1.0, 6.2.0, 7.0.0, 7.1.0, 7.2.0, 7.3.4
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+Transcript started, output file is /Users/menon/Documents/GitHub/SCADA\Resultados_20230629_2109_Dominio nao pertencente ao SCADA\LOG_SCRIPT_Dominio nao pertencente ao SCADA.txt
+
+MethodInvocationException: /Users/menon/Documents/GitHub/SCADA/NMR5_Baseline.ps1:32:5
+Line |
+  32 |      $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Princ …
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Exception calling "GetCurrent" with "0" argument(s): "Windows Principal functionality is not supported on this platform."
+
+MethodInvocationException: /Users/menon/Documents/GitHub/SCADA/NMR5_Baseline.ps1:32:5
+Line |
+  32 |      $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Princ …
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Exception calling "GetCurrent" with "0" argument(s): "Windows Principal functionality is not supported on this
+     | platform."
+
+Este script deve ser executado com privilegios de administrador.
+
+Get-CimInstance: /Users/menon/Documents/GitHub/SCADA/NMR5_Baseline.ps1:69:19
+Line |
+  69 |      $osVersion = (Get-CimInstance -ClassName CIM_OperatingSystem).Ver …
+     |                    ~~~~~~~~~~~~~~~
+     | The term 'Get-CimInstance' is not recognized as a name of a cmdlet, function, script file, or executable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Get-CimInstance: /Users/menon/Documents/GitHub/SCADA/NMR5_Baseline.ps1:69:19
+Line |
+  69 |      $osVersion = (Get-CimInstance -ClassName CIM_OperatingSystem).Ver …
+     |                    ~~~~~~~~~~~~~~~
+     | The term 'Get-CimInstance' is not recognized as a name of a cmdlet, function, script file, or executable program.
+     | Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Atencao: Este script foi otimizado para o Windows Server 2012 R2. Alguns recursos podem nao funcionar corretamente nesta versao do sistema operacional.
+Versao do Windows:
+Dominio:  Dominio nao pertencente ao SCADA
+
+Processo concluido.
+**********************
+PowerShell transcript end
+End time: 20230629210953
+**********************
