@@ -12,13 +12,13 @@
 # EMS Console and Server Lists
 $EMSConsoleList = ('bitcon1', 'bitcon2', 'bitcon3', 'bitcon4', 'bitcon5', 'bitcon6', 'bitcon7', 'bitcon8', 'bitcon9', 'bitcon10', 'bitcon11', 'bitcon12', 'bitcon13', 'bitcon14', 'bitcon15', 'bitcon16', 'bitcon17', 'bitcon18', 'bitcon19', 'bitcon20', 'bitcon21', 'bitcon22', 'bitcon23', 'bitcon24', 'bitcon25', 'bitcon26', 'bitcon27', 'bitcon28', 'bitcon29', 'bitcon30', 'bitdtcon1', 'bitdtcon2', 'bitdtcon3', 'bitdtcon4', 'bitdtcon5', 'bitdtcon6', 'bitdtvaps1')
 $EMSServerList = ('bitora1', 'bitora2', 'bithis1', 'bithis2', 'bitood1', 'bitood2', 'bitaps1', 'bitaps2', 'biticcp1', 'biticcp2', 'bitdmc1', 'bitdmc2', 'bitpcu1', 'bitpcu2', 'bitims1', 'bitims2', 'bitdtaps1')
-    
+
 # PDS Console and Server Lists
 $PDSConsoleList = ('bitpdcon1', 'bitpdcon2', 'bitpdcon3', 'bitpdcon4')
 $PDSServerList = ('bitpdaps1', 'bitpdvaps1', 'bitpdpcu1', 'bitpdora1', 'bitpdviccp1', 'bitpdvhis1')
 
 # Limpar todas as variáveis da sessão atual
-function Clear-AllVariables {
+function Clear-AllVariable {
     $variables = Get-Variable -Scope Global -Exclude PWD, OLDPWD
     $variables | ForEach-Object {
         if ($_.Options -ne "Constant" -and $_.Options -ne "ReadOnly") {
@@ -28,7 +28,7 @@ function Clear-AllVariables {
 }
 
 # Verificar execução como administrador
-function Test-AdminPrivileges {
+function Test-AdminPrivilege {
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
         Write-Host 'Este script deve ser executado com privilegios de administrador.'
@@ -102,12 +102,12 @@ function Get-Timeout {
     return $timeout
 }
 
-# Obter o nome do Domain/Environment  
+# Obter o nome do Domain/Environment
 function Get-Environment {
     $domain = $env:USERDNSDOMAIN
     $domain = $domain.ToLower()
 
-    if ($domain -match 'ems') {  
+    if ($domain -match 'ems') {
         return "ems"
     }
     elseif ($domain -match 'pds') {
@@ -117,7 +117,7 @@ function Get-Environment {
         return "itaipu"                             # depende de habilitação de serviço na máquina local
     }
     else {
-        return "Dominio nao pertencente ao SCADA"      
+        return "Dominio nao pertencente ao SCADA"
     }
 }
 
@@ -127,7 +127,7 @@ function Get-TargetList {
     $ConsoleList = @()
     $ServerList = @()
 
-    if ($domain -match 'ems') {  
+    if ($domain -match 'ems') {
         $ConsoleList = $EMSConsoleList              # Para futura lista separada de console e servidor
         $ServerList = $EMSServerList
     }
@@ -181,7 +181,7 @@ function Get-RemoteProgram {
         'SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\'
 
         if ($psversiontable.psversion.major -gt 2) {
-            $HashProperty = [ordered]@{}    
+            $HashProperty = [ordered]@{}
         }
         else {
             $HashProperty = @{}
@@ -208,7 +208,7 @@ function Get-RemoteProgram {
                             if ($CurrentRegKey) {
                                 $CurrentRegKey.GetSubKeyNames() | ForEach-Object {
                                     $HashProperty.ProgramName = ($DisplayName = ($RegBase.OpenSubKey("$CurrentReg" + $_)).GetValue('DisplayName'))
-                                    
+
                                     if ($IncludeProgram) {
                                         if ($ProgramRegExMatch) {
                                             $IncludeProgram | ForEach-Object {
@@ -300,7 +300,7 @@ function Get-ConnectionResult {
         # Nao mais utilizado, mantido no codigo para referencia de passagem de parametro de formato
         #$targetFileNameFormat = '{0}\{1}_{2}_{3}'
         #$targetFileName = $targetFileNameFormat -f $OutputPath, $domain, $target, (Get-Date).ToString('yyyyMMdd_HHmm')
-        
+
         # Obter a lista de programas
         $softwareList = Get-RemoteProgram -ComputerName $target -Property DisplayVersion
 
@@ -311,8 +311,8 @@ function Get-ConnectionResult {
         #Filtrar a lista de programas e escrever em um arquivo .txt
         $target | Out-File -FilePath "$OutputPath\${target}.txt" -Append
         $softwareList | Out-File "$OutputPath\${target}.txt" -Append
-       
-        # Adicionar a lista de programas ao arquivo Consoles_$domain.txt 
+
+        # Adicionar a lista de programas ao arquivo Consoles_$domain.txt
         $target | Out-File       "$OutputPath\Lista_Geral_Software_$domain.txt" -Append
         $softwareList | Out-File "$OutputPath\Lista_Geral_Software_$domain.txt" -Append
 
@@ -328,7 +328,7 @@ function Get-ConnectionResult {
 function Connect-ToTargets {
     param (
         [string]$OutputPath,
-        [int]$attempts = 2,         #Duas tentivas de conexão                        
+        [int]$attempts = 2,         #Duas tentivas de conexão
         [int]$timeout,
         [string]$domain,
         [string[]]$targets
@@ -361,15 +361,16 @@ function Connect-ToTargets {
 
     Write-Host 'Processo concluido.'
 }
-    
+
 function Main {
+    Clear-AllVariable 
     $domain = Get-Environment
     $OutputPath = $PSScriptRoot + '\Resultados_' + (Get-Date -Format 'yyyyMMdd_HHmm') + '_' + $domain
     $logFile = "$OutputPath\" + "LOG_SCRIPT_$domain.txt"
-    Start-Transcript -Path $logFile     #-Append 
-    Test-AdminPrivileges
+    Start-Transcript -Path $logFile     #-Append
+    Test-AdminPrivilege
     # $PSVersion = Test-PowerShellVersion                 # Uso futuro
-    $OSVersion = Test-OSVersion                           # Uso futuro    
+    $OSVersion = Test-OSVersion                           # Uso futuro
     Write-Host "Versao do Windows: "  $OSVersion
     $timeout = Get-Timeout
 
@@ -384,7 +385,4 @@ function Main {
     Stop-Transcript
 }
 
-
- 
  Main
- 
