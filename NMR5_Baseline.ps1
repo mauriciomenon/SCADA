@@ -1,4 +1,4 @@
-# Baseline_NMR5 8.8
+# Baseline_NMR5 8.9
 # Autor: Mauricio Menon
 # 15/06/2023  SMIN.DT
 # Desenvolvido para PowerShell 5.1, versão instalada por padrão no WS2012R2 e W10
