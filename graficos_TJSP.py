@@ -7,7 +7,9 @@ disciplinas = ['Atualidades', 'Constitucional', 'Direito Administrativo', 'Direi
                'Direito Processual Civil', 'Direito Processual Penal', 'Informática',
                'Matemática', 'Normas da Corregedoria', 'Português', 'Raciocínio Lógico']
 
-# Valores pré-carregados dos acertos e erros
+# Valores pré-carregados dos acertos e erros. Pode ser modificado posteriormente
+prova1 = "São Paulo"
+prova2 = "São Bernardo"
 acertos1 = [5, 7, 8, 5, 4, 7, 14, 5, 5, 19, 6]
 erros1 = [1, 0, 0, 1, 3, 0, 0, 1, 1, 5, 4]
 acertos2 = [6, 4, 6, 3, 6, 7, 13, 5, 5, 22, 9]
@@ -26,8 +28,8 @@ class MainWindow(QMainWindow):
         self.state = 0
 
         # Configurações iniciais da janela
-        self.setWindowTitle("Gráfico de Notas por Disciplina")
-        self.setFixedSize(1024, 830)
+        self.setWindowTitle("Concurso TJ-SP")
+        self.setFixedSize(1024, 840)
 
         # Criar um widget central para a janela
         central_widget = QWidget(self)
@@ -38,7 +40,7 @@ class MainWindow(QMainWindow):
 
         # Adicionar a label de totais
         self.total_label = QLabel(self)
-        self.total_label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        self.total_label.setStyleSheet("font-size: 16px; font-weight: bold;")
 
         # Adicionar o total_label ao layout principal como primeiro widget
         layout.addWidget(self.total_label)
@@ -107,13 +109,15 @@ class MainWindow(QMainWindow):
         acertos = acertos1 if self.state == 0 else acertos2
         erros = erros1 if self.state == 0 else erros2
         nota_corte = nota_corte1 if self.state == 0 else nota_corte2
+        prova = prova1 if self.state == 0 else prova2
 
         for i, (acertos_input, erros_input) in enumerate(zip(self.acertos_inputs, self.erros_inputs)):
             acertos_input.setText(str(acertos[i]))
             erros_input.setText(str(erros[i]))
 
         self.nota_corte_input.setText(str(nota_corte))
-
+        self.total_label.setText(f'Prova: {prova:<16} Acertos: {sum(acertos)}/{sum(acertos) + sum(erros)} Nota: {(sum(acertos) * 100) / (sum(acertos) + sum(erros)):.2f}')    
+        
     def toggle_data(self):
         # Alterna entre 0 e 1
         self.state = 1 - self.state
@@ -172,6 +176,9 @@ class MainWindow(QMainWindow):
         ax.set_xlabel('Nota')
         ax.set_title('Gráfico de Notas por Disciplina')
         #ax.legend()
+        
+        # Atualizar a label de totais
+        self.update_inputs()
 
         # Atualizar o gráfico
         self.figure_widget.canvas.draw()
