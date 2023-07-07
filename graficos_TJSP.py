@@ -1,6 +1,7 @@
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QPushButton
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, QFileDialog
 import matplotlib.pyplot as plt
+
 
 # Dados das disciplinas
 disciplinas = ['Atualidades', 'Constitucional', 'Direito Administrativo', 'Direito Penal',
@@ -94,6 +95,13 @@ class MainWindow(QMainWindow):
 
         # Adicionar o botão ao layout vertical
         layout.addWidget(button)
+        
+        # Criar o botão "Salvar Gráfico"
+        save_button = QPushButton("Salvar Gráfico", self)
+        save_button.clicked.connect(self.save_plot)
+
+        # Adicionar o botão ao layout vertical
+        layout.addWidget(save_button)
 
         # Criar o botão para alternar entre os dados das provas
         toggleButton = QPushButton("Alternar Prova", self)
@@ -182,7 +190,13 @@ class MainWindow(QMainWindow):
 
         # Atualizar o gráfico
         self.figure_widget.canvas.draw()
-
+        
+    def save_plot(self):
+        file_dialog = QFileDialog()
+        filename, _ = file_dialog.getSaveFileName(
+            self, 'Salvar Gráfico', '', 'Images (*.jpg)')
+        if filename:
+            self.figure_widget.savefig(filename)
 
 # Executar a aplicação
 if __name__ == "__main__":
