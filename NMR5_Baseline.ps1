@@ -1,9 +1,9 @@
-# Baseline_NMR5 8.9
+# Baseline_NMR5 8.10 para PIC.EE.0246
 # Autor: Mauricio Menon
-# 15/06/2023  SMIN.DT
+# Versão inicial: FAT NMR5 Houston (2018)
+# Versão atual 12/07/2023
 # Desenvolvido para PowerShell 5.1, versão instalada por padrão no WS2012R2 e W10
 # Utiliza portas 445 e 139 para conexão com os servidores/consoles
-# Versao 1.0  utilizada no TAF e Comissionamento do SCADA NMR5
 # TO DO
 # - Setar codificação para caracteres com acento
 # - Reimplantar scriptblock que foi retirado para debug
@@ -297,9 +297,9 @@ function Get-ConnectionResult {
     $connected = $false
 
     try {
-        # Nao mais utilizado, mantido no codigo para referencia de passagem de parametro de formato
-        #$targetFileNameFormat = '{0}\{1}_{2}_{3}'
-        #$targetFileName = $targetFileNameFormat -f $OutputPath, $domain, $target, (Get-Date).ToString('yyyyMMdd_HHmm')
+        # Mantido no codigo comentado para referencia de passagem de parametros
+        # $targetFileNameFormat = '{0}\{1}_{2}_{3}'
+        # $targetFileName = $targetFileNameFormat -f $OutputPath, $domain, $target, (Get-Date).ToString('yyyyMMdd_HHmm')
 
         # Obter a lista de programas
         $softwareList = Get-RemoteProgram -ComputerName $target -Property DisplayVersion
@@ -362,10 +362,34 @@ function Connect-ToTargets {
     Write-Host 'Processo concluido.'
 }
 
+function Get_SP_KB {
+    param (
+        [string]$OutputPath,
+        [string]$domain,
+        [string[]]$targets
+    )
+
+    foreach ($target in $targets) {
+        Write-Host "Obtendo informacoes de ServicePack do alvo $target..."
+
+        # Comando para obter a lista completa de Servicepack
+        $hotfixes = Get-CimInstance -ClassName Win32_QuickFixEngineering -ComputerName $target
+
+        # Exporta todas as propriedades para CSV
+        $hotfixes | Export-Csv -Path "$OutputPath\$domain`_${target}_SP_KB.csv" -NoTypeInformation
+
+        # Exibe ou exporta apenas as propriedades específicas para TXT
+        $hotfixes | Select-Object Description, FixComments, HotFixID, InstalledBy, InstalledOn | Out-File -FilePath "$OutputPath\$domain`_${target}_SP_KB.txt"
+    }
+    Write-Host "Processo concluido."
+}
+
 function Main {
     Clear-AllVariable 
     $domain = Get-Environment
-    $OutputPath = $PSScriptRoot + '\Resultados_' + (Get-Date -Format 'yyyyMMdd_HHmm') + '_' + $domain
+    # Definicao de diretorio de saida dos dados - nao confundir com o nome do arquivo
+    # $OutputPath = $PSScriptRoot + \$domain + 'Resultados_' + (Get-Date -Format 'yyyyMMdd_HHmm') + '_' + $domain
+    $OutputPath = Join-Path -Path $PSScriptRoot -ChildPath ($domain + '_' + 'Resultados' + '_' + (Get-Date -Format 'yyyyMMdd_HHmm'))
     $logFile = "$OutputPath\" + "LOG_SCRIPT_$domain.txt"
     Start-Transcript -Path $logFile     #-Append
     Test-AdminPrivilege
@@ -382,6 +406,7 @@ function Main {
     }
 
     Connect-ToTargets -OutputPath $OutputPath -attempts $attempts -timeout $timeout -domain $domain -targets $targets
+    Get_SP_KB -OutputPath $OutputPath -domain $domain -targets $targets
     Stop-Transcript
 }
 

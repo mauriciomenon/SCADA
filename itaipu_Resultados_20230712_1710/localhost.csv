@@ -95,7 +95,7 @@
 "Microsoft Windows Desktop Targeting Pack - 3.1.0 (x64)","24.64.28315"
 "vs_Graphics_Singletonx64","16.10.31213"
 "Obj. de Gerenciamento de An?lise do Microsoft SQL Server 2014 ","12.2.5000.0"
-"Google Chrome","114.0.5735.134"
+"Google Chrome","114.0.5735.199"
 "Microsoft .NET Core 3.1 Templates 5.0.412 (x64)","12.23.30220"
 "Python 3.10.7 Tcl/Tk Support (64-bit)","3.10.7150.0"
 "Microsoft Visual Studio 2010 Tools for Office Runtime (x64)","10.0.60729"
@@ -134,6 +134,7 @@
 "Microsoft .NET AppHost Pack - 5.0.7 (x64_arm64)","40.28.30105"
 "Microsoft Visual C++ 2019 X64 Debug Runtime - 14.29.30139","14.29.30139"
 "Microsoft .NET Standard Targeting Pack - 2.1.0 (x64)","24.0.28113"
+"Microsoft Teams Meeting Add-in for Microsoft Office","1.23.16601"
 "Microsoft .NET AppHost Pack - 5.0.17 (x64_x86)","40.68.31213"
 "VirtViewer 7.0-256 (64-bit)","7.0.256"
 "Python 3.9.0 Executables (64-bit)","3.9.150.0"
@@ -182,6 +183,7 @@
 "Python 3.9.0 Development Libraries (64-bit)","3.9.150.0"
 "Microsoft StreamInsight 2.3 (x64) (pt-BR)","23.0.1000.8"
 "Microsoft .NET AppHost Pack - 5.0.7 (x64_arm)","40.28.30105"
+"Microsoft Visual Studio Code","1.80.0"
 "Windows SDK DirectX x64 Remote","10.1.19041.685"
 "Neovim","0.9.1"
 "Microsoft SQL Server 2014 Management Objects (x64)","12.2.5000.0"
@@ -208,9 +210,9 @@
 "Visual Studio Community 2019","16.10.3"
 "Foxit PDF Reader","12.0.1.12430"
 "HandBrake 1.6.1","1.6.1"
-"Microsoft Edge","114.0.1823.51"
-"Microsoft Edge Update","1.3.175.29"
-"Microsoft Edge WebView2 Runtime","114.0.1823.51"
+"Microsoft Edge","114.0.1823.79"
+"Microsoft Edge Update","1.3.177.11"
+"Microsoft Edge WebView2 Runtime","114.0.1823.67"
 "Notepad++ (32-bit x86)","8.5.3"
 "Npcap","1.31"
 "Microsoft Project Professional 2013","15.0.4569.1506"
@@ -482,18 +484,18 @@
 "Microsoft Office Proofing Tools 2013 - Espa?ol","15.0.4420.1017"
 "Update for Microsoft Office 2013 (KB3178640) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB3172545) 32-Bit Edition",
+"Update for Microsoft Visio 2013 (KB5002343) 32-Bit Edition",
 "Security Update for Microsoft Office 2013 (KB4462142) 32-Bit Edition",
 "Update for Microsoft InfoPath 2013 (KB3114946) 32-Bit Edition",
 "Security Update for Microsoft Project 2013 (KB4484450) 32-Bit Edition",
-"Security Update for Microsoft Visio 2013 (KB5002332) 32-Bit Edition",
 "Update for Microsoft OneNote 2013 (KB4011281) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB3039756) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB3178640) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB3172545) 32-Bit Edition",
+"Update for Microsoft Visio 2013 (KB5002343) 32-Bit Edition",
 "Security Update for Microsoft Office 2013 (KB4462142) 32-Bit Edition",
 "Update for Microsoft InfoPath 2013 (KB3114946) 32-Bit Edition",
 "Security Update for Microsoft Project 2013 (KB4484450) 32-Bit Edition",
-"Security Update for Microsoft Visio 2013 (KB5002332) 32-Bit Edition",
 "Update for Microsoft OneNote 2013 (KB4011281) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB3039756) 32-Bit Edition",
 "Microsoft Office Proofing (Portuguese (Brazil)) 2013","15.0.4420.1017"
@@ -511,9 +513,9 @@
 "Update for Microsoft Office 2013 (KB4011155) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB3085587) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB3085565) 32-Bit Edition",
+"Security Update for Microsoft Outlook 2013 (KB5002382) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB3114499) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB5002151) 32-Bit Edition",
-"Security Update for Microsoft Outlook 2013 (KB5002265) 32-Bit Edition",
 "Security Update for Microsoft Office 2013 (KB4018332) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB3023049) 32-Bit Edition",
 "Update for Microsoft Office 2013 (KB4022212) 32-Bit Edition",
