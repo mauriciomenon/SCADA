@@ -291,39 +291,46 @@ function Get-RemoteProgram {
             }
 }
 
-
 function Get-ConnectionResult {
-    param (      [string]$target     )
+    param ([string]$target)
+
+    # Flag de status da conexão
     $connected = $false
 
     try {
-        # Mantido no codigo comentado para referencia de passagem de parametros
-        # $targetFileNameFormat = '{0}\{1}_{2}_{3}'
-        # $targetFileName = $targetFileNameFormat -f $OutputPath, $domain, $target, (Get-Date).ToString('yyyyMMdd_HHmm')
-
         # Obter a lista de programas
         $softwareList = Get-RemoteProgram -ComputerName $target -Property DisplayVersion
 
-        # Exportar para um arquivo CSV
-        # $softwareList | Export-Csv -Path "${targetFileName}.csv" -NoTypeInformation
-        $softwareList | Export-Csv -Path "$OutputPath\${target}.csv"  -NoTypeInformation
-
-        #Filtrar a lista de programas e escrever em um arquivo .txt
-        $target | Out-File -FilePath "$OutputPath\${target}.txt" -Append
-        $softwareList | Out-File "$OutputPath\${target}.txt" -Append
-
         # Adicionar a lista de programas ao arquivo Consoles_$domain.txt
-        $target | Out-File       "$OutputPath\Lista_Geral_Software_$domain.txt" -Append
+        $target | Out-File "$OutputPath\Lista_Geral_Software_$domain.txt" -Append
         $softwareList | Out-File "$OutputPath\Lista_Geral_Software_$domain.txt" -Append
 
+        try {
+            # Definir os caminhos dos arquivos
+            $csvPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'Software' -fileType 'csv'
+            $txtPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'Software' -fileType 'txt'
+
+            # Exportar a lista de software para arquivos csv e txt
+            $softwareList | Export-Csv -Path $csvPath -NoTypeInformation
+            $softwareList | Out-File $txtPath -Append
+        }
+        catch {
+            # Tratar erros ao obter a lista de software
+            Write-Error "Falha em obter a lista: $_"
+        }
+
+        # Atualizar a flag de status da conexão
         $connected = $true
     }
     catch {
+        # Tratar erros de conexão
         Write-Host "Falha ao conectar-se ao alvo $target."
     }
 
-    $connected
+    # Retornar o status da conexão
+    return $connected
 }
+
 
 function Connect-ToTargets {
     param (
@@ -358,11 +365,10 @@ function Connect-ToTargets {
     }
 
     $FailedConnections | Out-File "$OutputPath\Falhas_conexao_$domain.txt"
-
     Write-Host 'Processo concluido.'
 }
 
-function Get_SP_KB {
+function Get_Sys_KB {
     param (
         [string]$OutputPath,
         [string]$domain,
@@ -370,18 +376,47 @@ function Get_SP_KB {
     )
 
     foreach ($target in $targets) {
-        Write-Host "Obtendo informacoes de ServicePack do alvo $target..."
-
-        # Comando para obter a lista completa de Servicepack
-        $hotfixes = Get-CimInstance -ClassName Win32_QuickFixEngineering -ComputerName $target
-
-        # Exporta todas as propriedades para CSV
-        $hotfixes | Export-Csv -Path "$OutputPath\$domain`_${target}_SP_KB.csv" -NoTypeInformation
-
-        # Exibe ou exporta apenas as propriedades específicas para TXT
-        $hotfixes | Select-Object Description, FixComments, HotFixID, InstalledBy, InstalledOn | Out-File -FilePath "$OutputPath\$domain`_${target}_SP_KB.txt"
+        Write-Host "Obtendo informacoes do alvo $target..."
+        try {
+            $csvPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'SP' -fileType 'csv'
+            $txtPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'SP' -fileType 'txt'
+            $hotfixes | Export-Csv -Path $csvPath -NoTypeInformation
+            $hotfixes | Select-Object Description, FixComments, HotFixID, InstalledBy, InstalledOn | Out-File -FilePath $txtPath
+        }
+        catch {
+            Write-Error "Falha na exportacao de dados: $_"
+        }
     }
     Write-Host "Processo concluido."
+}
+
+function Format-OutputPath {
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$OutputPath,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$domain,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$target,
+
+        [ValidateSet('SP', 'Software')]
+        [Parameter(Mandatory = $true)]
+        [string]$infoType, # 'SP' or 'Software'
+
+        [ValidateSet('csv', 'txt')]
+        [Parameter(Mandatory = $true)]
+        [string]$fileType  # 'csv' or 'txt'
+    )
+
+    $filename = "${domain}_${target}_$infoType.$fileType"
+    $fullPath = Join-Path -Path $OutputPath -ChildPath $filename
+
+    return $fullPath
 }
 
 function Main {
@@ -406,7 +441,7 @@ function Main {
     }
 
     Connect-ToTargets -OutputPath $OutputPath -attempts $attempts -timeout $timeout -domain $domain -targets $targets
-    Get_SP_KB -OutputPath $OutputPath -domain $domain -targets $targets
+    Get_Sys_KB -OutputPath $OutputPath -domain $domain -targets $targets
     Stop-Transcript
 }
 
