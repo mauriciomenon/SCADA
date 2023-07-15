@@ -1,6 +1,6 @@
 
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, QFileDialog
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 # Dados das disciplinas
