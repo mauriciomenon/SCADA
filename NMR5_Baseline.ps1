@@ -1,4 +1,4 @@
-# Baseline_NMR5 8.10 para PIC.EE.0246
+# Baseline_NMR5 8.11 para PIC.EE.0246
 # Autor: Mauricio Menon
 # Versão inicial: FAT NMR5 Houston (2018)
 # Versão atual 12/07/2023
@@ -7,6 +7,7 @@
 # TO DO
 # - Setar codificação para caracteres com acento
 # - Reimplantar scriptblock que foi retirado para debug
+# - Lista de conexoes com sucesso
 
 # Definicao de lista de consoles e servidores do EMS(inclui DTS) e PDS
 # EMS Console and Server Lists
@@ -75,7 +76,6 @@ function Test-OSVersion {
     }
     return $osVersion
 }
-
 
 # Obter o tempo limite de conexão, utilizado para PS6/7. PS51 nao tem suporte a esse parametro
 # Sera utilizado em futura versao
@@ -368,7 +368,7 @@ function Connect-ToTargets {
     Write-Host 'Processo concluido.'
 }
 
-function Get_Sys_KB {
+function Get_Sys_Info {
     param (
         [string]$OutputPath,
         [string]$domain,
@@ -378,6 +378,9 @@ function Get_Sys_KB {
     foreach ($target in $targets) {
         Write-Host "Obtendo informacoes do alvo $target..."
         try {
+            # Comando para obter a lista completa de Servicepack
+            $hotfixes = Get-CimInstance -ClassName Win32_QuickFixEngineering -ComputerName $target
+            
             $csvPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'SP' -fileType 'csv'
             $txtPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'SP' -fileType 'txt'
             $hotfixes | Export-Csv -Path $csvPath -NoTypeInformation
@@ -413,7 +416,7 @@ function Format-OutputPath {
         [string]$fileType  # 'csv' or 'txt'
     )
 
-    $filename = "${domain}_${target}_$infoType.$fileType"
+    $filename = "${target}_${domain}_$infoType.$fileType"
     $fullPath = Join-Path -Path $OutputPath -ChildPath $filename
 
     return $fullPath
@@ -441,7 +444,7 @@ function Main {
     }
 
     Connect-ToTargets -OutputPath $OutputPath -attempts $attempts -timeout $timeout -domain $domain -targets $targets
-    Get_Sys_KB -OutputPath $OutputPath -domain $domain -targets $targets
+    Get_Sys_Info -OutputPath $OutputPath -domain $domain -targets $targets
     Stop-Transcript
 }
 
