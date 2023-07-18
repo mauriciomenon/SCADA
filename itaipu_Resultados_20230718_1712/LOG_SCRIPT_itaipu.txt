@@ -1,6 +1,6 @@
 ﻿**********************
 Início da transcrição do Windows PowerShell
-Hora de início: 20230714154948
+Hora de início: 20230718171257
 Nome de Usuário: ITAIPU\menon
 Executar como Usuário: ITAIPU\menon
 Nome da Configuração: 
@@ -10,8 +10,8 @@ Copyright (c) Microsoft Corporation.
 
 https://aka.ms/vscode-powershell
 Type 'help' to get help.
-" -LogLevel 'Normal' -LogPath 'c:\Users\menon\AppData\Roaming\Code\User\globalStorage\ms-vscode.powershell\logs\1689164790-5f837a4b-4bc1-467f-b4dd-e9aa23c053291689160679275\EditorServices.log' -SessionDetailsPath 'c:\Users\menon\AppData\Roaming\Code\User\globalStorage\ms-vscode.powershell\sessions\PSES-VSCode-32984-546208.json' -FeatureFlags @() 
-ID do Processo: 13000
+" -LogLevel 'Normal' -LogPath 'c:\Users\menon\AppData\Roaming\Code\User\globalStorage\ms-vscode.powershell\logs\1689680109-72b622d0-778b-47f0-a300-8f84dd98b8f21689680107089\EditorServices.log' -SessionDetailsPath 'c:\Users\menon\AppData\Roaming\Code\User\globalStorage\ms-vscode.powershell\sessions\PSES-VSCode-19460-324398.json' -FeatureFlags @() 
+ID do Processo: 45296
 PSVersion: 5.1.19041.3031
 PSEdition: Desktop
 PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.19041.3031
@@ -21,7 +21,7 @@ WSManStackVersion: 3.0
 PSRemotingProtocolVersion: 2.3
 SerializationVersion: 1.1.0.1
 **********************
-Transcrição iniciada, o arquivo de saída é C:\Users\menon\git\SCADA\itaipu_Resultados_20230714_1549\LOG_SCRIPT_itaipu.txt
+Transcrição iniciada, o arquivo de saída é C:\Users\menon\git\SCADA\itaipu_Resultados_20230718_1712\LOG_SCRIPT_itaipu.txt
 AVISO: Usuario Administrador
 Atencao: Este script foi otimizado para o Windows Server 2012 R2. Alguns recursos podem nao funcionar corretamente nesta versao do sistema operacional.
 Versao do Windows:  10.0.19044
@@ -33,5 +33,5 @@ Obtendo informacoes do alvo localhost...
 Processo concluido.
 **********************
 Fim da transcrição do Windows PowerShell
-Hora de término: 20230714154949
+Hora de término: 20230718171307
 **********************

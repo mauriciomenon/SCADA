@@ -378,13 +378,18 @@ function Get_Sys_Info {
     foreach ($target in $targets) {
         Write-Host "Obtendo informacoes do alvo $target..."
         try {
-            # Comando para obter a lista completa de Servicepack
+            # Comando para obter a lista de Servicepack
             $hotfixes = Get-CimInstance -ClassName Win32_QuickFixEngineering -ComputerName $target
-            
             $csvPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'SP' -fileType 'csv'
             $txtPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'SP' -fileType 'txt'
             $hotfixes | Export-Csv -Path $csvPath -NoTypeInformation
             $hotfixes | Select-Object Description, FixComments, HotFixID, InstalledBy, InstalledOn | Out-File -FilePath $txtPath
+            # Comando para obter info de SO
+            $osInfo = Get-CimInstance -ClassName Win32_OperatingSystem -ComputerName $target
+            $csvPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'OS' -fileType 'csv'
+            $txtPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'OS' -fileType 'txt'
+            $osInfo | Export-Csv -Path $csvPath -NoTypeInformation
+            $osInfo | Select-Object Version, Caption, CountryCode, CSName, Description, InstallDate, SerialNumber, ServicePackMajorVersion, WindowsDirectory | Out-File -FilePath $txtPath
         }
         catch {
             Write-Error "Falha na exportacao de dados: $_"
@@ -393,6 +398,7 @@ function Get_Sys_Info {
     Write-Host "Processo concluido."
 }
 
+# Validacao de campos evitando valor nulos ou vazio
 function Format-OutputPath {
     param (
         [Parameter(Mandatory = $true)]
@@ -407,9 +413,9 @@ function Format-OutputPath {
         [ValidateNotNullOrEmpty()]
         [string]$target,
 
-        [ValidateSet('SP', 'Software')]
+        [ValidateSet('Software','SP', 'OS')]
         [Parameter(Mandatory = $true)]
-        [string]$infoType, # 'SP' or 'Software'
+        [string]$infoType, # 'SP' or 'OS'        
 
         [ValidateSet('csv', 'txt')]
         [Parameter(Mandatory = $true)]
