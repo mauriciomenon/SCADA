@@ -1,4 +1,4 @@
-# Baseline_NMR5 8.11 para PIC.EE.0246
+# Baseline_NMR5 8.12 para PIC.EE.0246
 # Autor: Mauricio Menon
 # Versão inicial: FAT NMR5 Houston (2018)
 # Versão atual 12/07/2023
@@ -380,16 +380,34 @@ function Get_Sys_Info {
         try {
             # Comando para obter a lista de Servicepack
             $hotfixes = Get-CimInstance -ClassName Win32_QuickFixEngineering -ComputerName $target
-            $csvPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'SP' -fileType 'csv'
-            $txtPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'SP' -fileType 'txt'
-            $hotfixes | Export-Csv -Path $csvPath -NoTypeInformation
-            $hotfixes | Select-Object Description, FixComments, HotFixID, InstalledBy, InstalledOn | Out-File -FilePath $txtPath
+            $csvPathSP = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'SP' -fileType 'csv'
+            $txtPathSP = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'SP' -fileType 'txt'
+            $hotfixes | Sort-Object InstalledOn | Export-Csv -Path $csvPathSP -NoTypeInformation
+            $hotfixes | Sort-Object InstalledOn | Select-Object Description, FixComments, HotFixID, InstalledBy, InstalledOn | Out-File -FilePath $txtPathSP
             # Comando para obter info de SO
             $osInfo = Get-CimInstance -ClassName Win32_OperatingSystem -ComputerName $target
-            $csvPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'OS' -fileType 'csv'
-            $txtPath = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'OS' -fileType 'txt'
-            $osInfo | Export-Csv -Path $csvPath -NoTypeInformation
-            $osInfo | Select-Object Version, Caption, CountryCode, CSName, Description, InstallDate, SerialNumber, ServicePackMajorVersion, WindowsDirectory | Out-File -FilePath $txtPath
+            $csvPathOS = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'OS' -fileType 'csv'
+            $txtPathOS = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'OS' -fileType 'txt'
+            $osInfo | Export-Csv -Path $csvPathOS -NoTypeInformation
+            $osInfo | Select-Object Version, Caption, CountryCode, CSName, Description, InstallDate, SerialNumber, ServicePackMajorVersion, WindowsDirectory | Out-File -FilePath $txtPathOS
+            # Comando para obter uma lista de serviços
+            $services = Get-CimInstance -ClassName Win32_Service -ComputerName $target
+            $csvPathServices = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'Services' -fileType 'csv'
+            $txtPathServices = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'Services' -fileType 'txt'
+            $services | Sort-Object State | Select-Object Name, DisplayName, State, StartMode, PathName | Export-Csv -Path $csvPathServices -NoTypeInformation
+            $services | Sort-Object State | Select-Object Name, DisplayName, State, StartMode, PathName | Out-File -FilePath $txtPathServices
+            # Comando para obter dados da BIOS
+            $bios = Get-CimInstance -ClassName Win32_BIOS -ComputerName $target
+            $csvPathBios = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'BIOS' -fileType 'csv'
+            $txtPathBios = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'BIOS' -fileType 'txt'
+            $bios | Select-Object Manufacturer, Name, Version, Status, BIOSVersion, Description, EmbeddedControllerMajorVersion, EmbeddedControllerMinorVersion, InstallDate, PrimaryBIOS, ReleaseDate, SerialNumber, SMBIOSBIOSVersion, SMBIOSMajorVersion, SMBIOSMinorVersion, SMBIOSPresent, SystemBIOSMajorVersion, SystemBIOSMinorVersion | Export-Csv -Path $csvPathBios -NoTypeInformation
+            $bios | Select-Object Manufacturer, Name, Version, Status, BIOSVersion, Description, EmbeddedControllerMajorVersion, EmbeddedControllerMinorVersion, InstallDate, PrimaryBIOS, ReleaseDate, SerialNumber, SMBIOSBIOSVersion, SMBIOSMajorVersion, SMBIOSMinorVersion, SMBIOSPresent, SystemBIOSMajorVersion, SystemBIOSMinorVersion | Out-File -FilePath $txtPathBios
+            # Comando para obter lista de drivers do sistema
+            $sysDrivers = Get-CimInstance -ClassName Win32_SystemDriver -ComputerName $target
+            $csvPathDrivers = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'Drivers' -fileType 'csv'
+            $txtPathDrivers = Format-OutputPath -OutputPath $OutputPath -domain $domain -target $target -infoType 'Drivers' -fileType 'txt'
+            $sysDrivers | Sort-Object State |Select-Object Name, DisplayName, State, StartMode, PathName, ServiceType | Export-Csv -Path $csvPathDrivers -NoTypeInformation
+            $sysDrivers | Sort-Object State |Select-Object Name, DisplayName, State, StartMode, PathName, ServiceType | Out-File -FilePath $txtPathDrivers
         }
         catch {
             Write-Error "Falha na exportacao de dados: $_"
@@ -413,7 +431,7 @@ function Format-OutputPath {
         [ValidateNotNullOrEmpty()]
         [string]$target,
 
-        [ValidateSet('Software','SP', 'OS')]
+        [ValidateSet('Software', 'SP', 'OS', 'Services','BIOS','Drivers')]
         [Parameter(Mandatory = $true)]
         [string]$infoType, # 'SP' or 'OS'        
 
