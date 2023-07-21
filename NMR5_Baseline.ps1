@@ -1,7 +1,7 @@
-# Baseline_NMR5 8.12 para PIC.EE.0246
+# Baseline_NMR5 9.0 para PIC.EE.0246
 # Autor: Mauricio Menon
 # Versão inicial: FAT NMR5 Houston (2018)
-# Versão atual 12/07/2023
+# Versão atual 20/07/2023
 # Desenvolvido para PowerShell 5.1, versão instalada por padrão no WS2012R2 e W10
 # Utiliza portas 445 e 139 para conexão com os servidores/consoles
 # TO DO
