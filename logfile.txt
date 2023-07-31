@@ -1,6 +1,6 @@
 ﻿**********************
 Início da transcrição do Windows PowerShell
-Hora de início: 20230731103627
+Hora de início: 20230731112016
 Nome de Usuário: ITAIPU\menon
 Executar como Usuário: ITAIPU\menon
 Nome da Configuração: 
@@ -23,35 +23,7 @@ SerializationVersion: 1.1.0.1
 **********************
 Transcrição iniciada, o arquivo de saída é C:\Users\menon\git\SCADA\logfile.txt
 AVISO: Execucao como usuario Administrador
-Processando console localhost
-Link do aplicativo SCV nao encontrado em localhost
-Pasta c:\aplicativos\scv\bin nao encontrada em localhost
-Pasta c:\aplicativos\scv\Xml nao encontrada em localhost
-Processando console bitcon1
-Link do aplicativo SCV nao encontrado em bitcon1
-Pasta c:\aplicativos\scv\bin nao encontrada em bitcon1
-Pasta c:\aplicativos\scv\Xml nao encontrada em bitcon1
-Processando console bitcon2
-Link do aplicativo SCV nao encontrado em bitcon2
-Pasta c:\aplicativos\scv\bin nao encontrada em bitcon2
-Pasta c:\aplicativos\scv\Xml nao encontrada em bitcon2
-Processando console bitcon3
-Link do aplicativo SCV nao encontrado em bitcon3
-Pasta c:\aplicativos\scv\bin nao encontrada em bitcon3
-Pasta c:\aplicativos\scv\Xml nao encontrada em bitcon3
-Processando console bitcon11
-Link do aplicativo SCV nao encontrado em bitcon11
-Pasta c:\aplicativos\scv\bin nao encontrada em bitcon11
-Pasta c:\aplicativos\scv\Xml nao encontrada em bitcon11
-Processando console bitcon12
-Link do aplicativo SCV nao encontrado em bitcon12
-Pasta c:\aplicativos\scv\bin nao encontrada em bitcon12
-Pasta c:\aplicativos\scv\Xml nao encontrada em bitcon12
-Processando console bitcon13
-Link do aplicativo SCV nao encontrado em bitcon13
-Pasta c:\aplicativos\scv\bin nao encontrada em bitcon13
-Pasta c:\aplicativos\scv\Xml nao encontrada em bitcon13
 **********************
 Fim da transcrição do Windows PowerShell
-Hora de término: 20230731103627
+Hora de término: 20230731112016
 **********************

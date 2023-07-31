@@ -7,9 +7,7 @@ $logFile = Join-Path -Path (Get-Location).Path -ChildPath "logfile.txt"
 Start-Transcript -Path $logFile
 
 # Definicao de lista de consoles do CCR e Despacho
-$ccrConsoleList = @('bitcon1', 'bitcon2', 'bitcon3', 'bitcon4', 'bitcon5', 'bitcon6', 'bitco11', 'bitcon12')
-$ldrConsoleList = @('bitcon7', 'bitcon8', 'bitcon9', 'bitcon10')
-$allConsoles = $ccrConsoleList + $ldrConsoleList
+$allConsoles = @('bitcon1', 'bitcon2', 'bitcon3', 'bitcon4', 'bitcon5', 'bitcon6', 'bitcon7', 'bitcon8', 'bitcon9', 'bitcon10', 'bitcon11', 'bitcon12', 'bitco31', 'bitcon32')
 
 function Test-AdminPrivilege {
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -27,10 +25,6 @@ function Get-Environment {
 
     if ($domain -match 'ems') {
         return "ems"
-    }
-    elseif ($domain -match 'itaipu') {
-        # para criar lista para a máquina local no caso de debug do script
-        return "itaipu"                            
     }
     else {
         return "Dominio nao pertencente ao EMS-SCADA"
