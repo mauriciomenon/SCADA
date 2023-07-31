@@ -7,9 +7,9 @@ $logFile = Join-Path -Path (Get-Location).Path -ChildPath "logfile.txt"
 Start-Transcript -Path $logFile
 
 # Definicao de lista de consoles do CCR e Despacho
-$ccrConsoleList = @('localhost','bitcon1', 'bitcon2', 'bitcon3')
-$desConsoleList = @('bitcon11', 'bitcon12', 'bitcon13')
-$allConsoles = $ccrConsoleList + $desConsoleList
+$ccrConsoleList = @('bitcon1', 'bitcon2', 'bitcon3', 'bitcon4', 'bitcon5', 'bitcon6', 'bitco11', 'bitcon12')
+$ldrConsoleList = @('bitcon7', 'bitcon8', 'bitcon9', 'bitcon10')
+$allConsoles = $ccrConsoleList + $ldrConsoleList
 
 function Test-AdminPrivilege {
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -42,7 +42,7 @@ function Process-Consoles {
         Write-Output "Processando console $console"
 
         # Alterando o link do SCV
-        $shortcutPath = Join-Path -Path $console -ChildPath "c:\aplicativos\scv\bin\SCV.lnk"
+        $shortcutPath = Join-Path -Path $console -ChildPath "c:\Users\ibuser\Desktop\SCV.lnk"
         if (Test-Path -Path $shortcutPath) {
             $shell = New-Object -ComObject WScript.Shell
             $shortcut = $shell.CreateShortcut($shortcutPath)
