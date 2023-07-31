@@ -31,33 +31,43 @@ function Get-Environment {
     }
 }
 
+# Somente para a sessão atual
+function Set-ExecutionPolicyIfRequired {
+    if ((Get-ExecutionPolicy -Scope Process) -ne 'Unrestricted') {
+        Set-ExecutionPolicy Unrestricted -Scope Process -Force
+    }
+}
+
+
 function Process-Consoles {
     foreach ($console in $allConsoles) {
         Write-Output "Processando console $console"
 
-        # Alterando o link do SCV
-        $shortcutPath = Join-Path -Path $console -ChildPath "c:\Users\ibuser\Desktop\SCV.lnk"
-        if (Test-Path -Path $shortcutPath) {
-            $shell = New-Object -ComObject WScript.Shell
-            $shortcut = $shell.CreateShortcut($shortcutPath)
-            $shortcut.TargetPath = "\\bitaps1\scv\bin\SCV.exe"
-            $shortcut.Save()
-            Write-Output "Link do aplicativo SCV alterado com sucesso em $console"
-        }
-        else {
-            Write-Output "Link do aplicativo SCV nao encontrado em $console"
-        }
+        Invoke-Command -ComputerName $console -ScriptBlock {
 
-        # Remover as pastas
-        $foldersToRemove = @("c:\aplicativos\scv\bin", "c:\aplicativos\scv\Xml")
-        foreach ($folder in $foldersToRemove) {
-            $folderPath = Join-Path -Path $console -ChildPath $folder
-            if (Test-Path -Path $folderPath) {
-                Remove-Item -Path $folderPath -Recurse -Force
-                Write-Output "Pasta $folder removida com sucesso de $console"
+            # Alterando o link do SCV
+            $shortcutPath = "c:\Users\ibuser\Desktop\SCV.lnk"
+            if (Test-Path -Path $shortcutPath) {
+                $shell = New-Object -ComObject WScript.Shell
+                $shortcut = $shell.CreateShortcut($shortcutPath)
+                $shortcut.TargetPath = "\\bitaps1\scv\bin\SCV.exe"
+                $shortcut.Save()
+                Write-Output "Link do aplicativo SCV alterado com sucesso em $using:console"
             }
             else {
-                Write-Output "Pasta $folder nao encontrada em $console"
+                Write-Output "Link do aplicativo SCV nao encontrado em $using:console"
+            }
+
+            # Remover as pastas
+            $foldersToRemove = @("c:\aplicativos\scv\bin", "c:\aplicativos\scv\Xml")
+            foreach ($folder in $foldersToRemove) {
+                if (Test-Path -Path $folder) {
+                    Remove-Item -Path $folder -Recurse -Force
+                    Write-Output "Pasta $folder removida com sucesso de $using:console"
+                }
+                else {
+                    Write-Output "Pasta $folder nao encontrada em $using:console"
+                }
             }
         }
     }
@@ -67,6 +77,7 @@ function main {
     Test-AdminPrivilege
     $env = Get-Environment
     if ($env -eq "ems") {
+        Set-ExecutionPolicyIfRequired
         Process-Consoles
     }
 }
