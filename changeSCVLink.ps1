@@ -3,11 +3,11 @@
 # Versão 1.0 31/07/2023
 # Desenvolvido para PowerShell 5.1
 
-$logFile = "c:\temp\logfile.txt" # Certifique-se de ajustar para o caminho do log desejado
-Start-Transcript -Path $logFile     
+$logFile = Join-Path -Path (Get-Location).Path -ChildPath "logfile.txt"
+Start-Transcript -Path $logFile
 
 # Definicao de lista de consoles 
-$ccrConsoleList = @('bitcon1', 'bitcon2', 'bitcon3')
+$ccrConsoleList = @('localhost','bitcon1', 'bitcon2', 'bitcon3')
 $desConsoleList = @('bitcon11', 'bitcon12', 'bitcon13')
 
 $allConsoles = $ccrConsoleList + $desConsoleList
