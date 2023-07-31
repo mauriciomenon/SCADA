@@ -1,6 +1,6 @@
 ﻿**********************
 Início da transcrição do Windows PowerShell
-Hora de início: 20230731102234
+Hora de início: 20230731103627
 Nome de Usuário: ITAIPU\menon
 Executar como Usuário: ITAIPU\menon
 Nome da Configuração: 
@@ -22,7 +22,7 @@ PSRemotingProtocolVersion: 2.3
 SerializationVersion: 1.1.0.1
 **********************
 Transcrição iniciada, o arquivo de saída é C:\Users\menon\git\SCADA\logfile.txt
-AVISO: Usuario Administrador
+AVISO: Execucao como usuario Administrador
 Processando console localhost
 Link do aplicativo SCV nao encontrado em localhost
 Pasta c:\aplicativos\scv\bin nao encontrada em localhost
@@ -53,5 +53,5 @@ Pasta c:\aplicativos\scv\bin nao encontrada em bitcon13
 Pasta c:\aplicativos\scv\Xml nao encontrada em bitcon13
 **********************
 Fim da transcrição do Windows PowerShell
-Hora de término: 20230731102234
+Hora de término: 20230731103627
 **********************
