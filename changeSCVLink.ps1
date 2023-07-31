@@ -3,7 +3,8 @@
 # Versão 1.0 31/07/2023
 # Desenvolvido para PowerShell 5.1
 
-Start-Transcript -Path $logFile     #-Append
+$logFile = "c:\temp\logfile.txt" # Certifique-se de ajustar para o caminho do log desejado
+Start-Transcript -Path $logFile     
 
 # Definicao de lista de consoles 
 $ccrConsoleList = @('bitcon1', 'bitcon2', 'bitcon3')
@@ -17,7 +18,7 @@ function Test-AdminPrivilege {
         Write-Host 'Este script deve ser executado com privilegios de administrador.'
     }
     else {
-        write-warning 'Usuario Administrador'
+        Write-Warning 'Usuario Administrador'
     }
 }
 
@@ -37,36 +38,46 @@ function Get-Environment {
     }
 }
 
-foreach ($console in $allConsoles) {
-    Write-Output "Processando console $console"
+function Process-Consoles {
+    foreach ($console in $allConsoles) {
+        Write-Output "Processando console $console"
 
-    # Alterando o caminho do aplicativo SCV
-    $shortcutPath = Join-Path -Path $console -ChildPath "c:\aplicativos\scv\bin\SCV.lnk"
-    if (Test-Path -Path $shortcutPath) {
-        $shell = New-Object -ComObject WScript.Shell
-        $shortcut = $shell.CreateShortcut($shortcutPath)
-        $shortcut.TargetPath = "\\bitaps1\scv\bin"
-        $shortcut.Save()
-        Write-Output "Link do aplicativo SCV alterado com sucesso em $console"
-    }
-    else {
-        Write-Output "Link do aplicativo SCV nao encontrado em $console"
-    }
-
-    # Removendo as pastas
-    $foldersToRemove = @("c:\aplicativos\scv\bin", "c:\aplicativos\scv\Xml")
-    foreach ($folder in $foldersToRemove) {
-        $folderPath = Join-Path -Path $console -ChildPath $folder
-        if (Test-Path -Path $folderPath) {
-            Remove-Item -Path $folderPath -Recurse -Force
-            Write-Output "Pasta $folder removida com sucesso de $console"
+        # Alterando o caminho do aplicativo SCV
+        $shortcutPath = Join-Path -Path $console -ChildPath "c:\aplicativos\scv\bin\SCV.lnk"
+        if (Test-Path -Path $shortcutPath) {
+            $shell = New-Object -ComObject WScript.Shell
+            $shortcut = $shell.CreateShortcut($shortcutPath)
+            $shortcut.TargetPath = "\\bitaps1\scv\bin"
+            $shortcut.Save()
+            Write-Output "Link do aplicativo SCV alterado com sucesso em $console"
         }
         else {
-            Write-Output "Pasta $folder nao encontrada em $console"
+            Write-Output "Link do aplicativo SCV nao encontrado em $console"
+        }
+
+        # Removendo as pastas
+        $foldersToRemove = @("c:\aplicativos\scv\bin", "c:\aplicativos\scv\Xml")
+        foreach ($folder in $foldersToRemove) {
+            $folderPath = Join-Path -Path $console -ChildPath $folder
+            if (Test-Path -Path $folderPath) {
+                Remove-Item -Path $folderPath -Recurse -Force
+                Write-Output "Pasta $folder removida com sucesso de $console"
+            }
+            else {
+                Write-Output "Pasta $folder nao encontrada em $console"
+            }
         }
     }
 }
 
+function main {
+    Test-AdminPrivilege
+    $env = Get-Environment
+    if ($env -ne "Dominio nao pertencente ao EMS-SCADA") {
+        Process-Consoles
+    }
+}
 
+main
 
 Stop-Transcript
