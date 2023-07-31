@@ -1,6 +1,6 @@
 # changeSvcLink para SSA 202312444
 # Autor: Mauricio Menon
-# Versão 1.0 31/07/2023
+# Versão 1.1 31/07/2023
 # Desenvolvido para PowerShell 5.1
 
 $logFile = Join-Path -Path (Get-Location).Path -ChildPath "logfile.txt"
@@ -12,10 +12,10 @@ $allConsoles = @('bitcon1', 'bitcon2', 'bitcon3', 'bitcon4', 'bitcon5', 'bitcon6
 function Test-AdminPrivilege {
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $isAdmin) {
-        Write-Host 'Este script deve ser executado com privilegio de Administrador.'
+        Write-Error 'Este script deve ser executado com privilegio de Administrador.'
     }
     else {
-        Write-Warning 'Execucao como usuario Administrador'
+        Write-Warning 'Executado como usuario administrador'
     }
 }
 
@@ -27,7 +27,7 @@ function Get-Environment {
         return "ems"
     }
     else {
-        return "Dominio nao pertencente ao EMS-SCADA"
+        Write-Warning "Dominio nao pertencente ao EMS-SCADA"
     }
 }
 
@@ -66,7 +66,7 @@ function Process-Consoles {
 function main {
     Test-AdminPrivilege
     $env = Get-Environment
-    if ($env -ne "Dominio nao pertencente ao EMS-SCADA") {
+    if ($env -eq "ems") {
         Process-Consoles
     }
 }
