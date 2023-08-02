@@ -51,6 +51,7 @@ function Process-Consoles {
                 $shell = New-Object -ComObject WScript.Shell
                 $shortcut = $shell.CreateShortcut($shortcutPath)
                 $shortcut.TargetPath = "\\bitaps1\scv\bin\SCV.exe"
+                $shortcut.WorkingDirectory = "\\bitaps1\scv\bin\"
                 $shortcut.Save()
                 Write-Output "Link do aplicativo SCV alterado com sucesso em $using:console"
             }
