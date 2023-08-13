@@ -1,6 +1,6 @@
 # changeSvcLink para SSA 202312444
 # Autor: Mauricio Menon
-# Versão 1.1 31/07/2023
+# Versão 1.2 31/07/2023
 # Desenvolvido para PowerShell 5.1
 
 $logFile = Join-Path -Path (Get-Location).Path -ChildPath "logfile.txt"
@@ -10,24 +10,40 @@ Start-Transcript -Path $logFile
 $allConsoles = @('bitcon1', 'bitcon2', 'bitcon3', 'bitcon4', 'bitcon5', 'bitcon6', 'bitcon7', 'bitcon8', 'bitcon9', 'bitcon10', 'bitcon11', 'bitcon12', 'bitco31', 'bitcon32')
 
 function Test-AdminPrivilege {
-    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    if (-not $isAdmin) {
-        Write-Error 'Este script deve ser executado com privilegio de Administrador.'
+    # Se não for Windows, simplesmente retorne
+    if ($PSVersionTable.Platform -ne "Win32NT") {
+        Write-Warning "A verificação de privilégios de administrador é aplicável apenas em sistemas Windows."
+        return
     }
-    else {
-        Write-Warning 'Executado como usuario administrador'
+    
+    try {
+        $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+        if (-not $isAdmin) {
+            Write-Error 'Este script deve ser executado com privilegio de Administrador.'
+            exit
+        }
+        else {
+            Write-Output 'Executado como usuario administrador'
+        }
+    } catch {
+        Write-Warning "Erro ao verificar privilégios de administrador: $_"
+        exit
     }
 }
 
 function Get-Environment {
     $domain = $env:USERDNSDOMAIN
+    if ($null -eq $domain) {
+        Write-Warning "Variável de domínio não está definida."
+        return $null
+    }
     $domain = $domain.ToLower()
 
     if ($domain -match 'ems') {
         return "ems"
-    }
-    else {
+    } else {
         Write-Warning "Dominio nao pertencente ao EMS-SCADA"
+        return $null
     }
 }
 
