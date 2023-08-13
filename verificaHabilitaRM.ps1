@@ -1,128 +1,127 @@
-# Função para verificar a conectividade básica
-function Test-BasicConnectivity {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string] $ComputerName
-    )
+$logFile = Join-Path -Path (Get-Location).Path -ChildPath "logfile.txt"
+Start-Transcript -Path $logFile
 
-    Write-Output "Verificando conectividade básica com $ComputerName..."
-    # Verifique se o host responde ao ping
-    $pingResult = Test-Connection -ComputerName $ComputerName -Count 1 -Quiet
-    if (-not $pingResult) {
-        Write-Warning "Ping falhou para $ComputerName."
-        return $false
+# Definicao de lista de consoles do CCR e Despacho
+$allConsoles = @('bitcon1', 'bitcon2', 'bitcon3', 'bitcon4', 'bitcon5', 'bitcon6', 'bitcon7', 'bitcon8', 'bitcon9', 'bitcon10', 'bitcon11', 'bitcon12', 'bitco31', 'bitcon32')
+
+function Test-AdminPrivilege {
+    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if (-not $isAdmin) {
+        Write-Error 'Este script deve ser executado com privilegio de Administrador.'
+        exit
     }
-
-    # Verifique a conectividade na porta 5985
-    try {
-        $portResult = Test-NetConnection -ComputerName $ComputerName -Port 5985
-        if ($portResult.TcpTestSucceeded) {
-            Write-Output "Porta 5985 está aberta em $ComputerName."
-            return $true
-        }
-    } catch {
-        Write-Warning "Falha ao testar a porta 5985 em $ComputerName."
-        return $false
+    else {
+        Write-Output 'Executado como usuario administrador'
     }
-
-    return $false
 }
 
-# Função para obter o status do serviço via WMI
-function Get-ServiceStatusViaWMI {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string] $ComputerName,
-        [Parameter(Mandatory=$true)]
-        [string] $ServiceName
-    )
+function Get-Environment {
+    $domain = $env:USERDNSDOMAIN
+    $domain = $domain.ToLower()
 
-    try {
-        $service = Get-WmiObject -Class Win32_Service -Filter "Name='$ServiceName'" -ComputerName $ComputerName
-        Write-Output "$ServiceName em $ComputerName está $($service.State)."
-        return $service.State
-    } catch {
-        Write-Warning "Falha ao obter status de $ServiceName em $ComputerName via WMI."
+    if ($domain -match 'ems') {
+        return "ems"
+    }
+    else {
+        Write-Warning "Dominio nao pertencente ao EMS-SCADA"
         return $null
     }
 }
 
-# Função para iniciar um serviço via WMI
+# Somente para a sessão atual
+function Set-ExecutionPolicyIfRequired {
+    if ((Get-ExecutionPolicy -Scope Process) -ne 'Unrestricted') {
+        Set-ExecutionPolicy Unrestricted -Scope Process -Force
+    }
+}
+
+function Test-BasicConnectivity {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ComputerName
+    )
+    
+    if (!(Test-Connection -ComputerName $ComputerName -Count 1 -Quiet)) {
+        Write-Warning "Falha na conectividade básica com $ComputerName."
+        return $false
+    }
+    Write-Output "Conectividade básica com $ComputerName verificada com sucesso!"
+    return $true
+}
+
+function Get-ServiceStatusViaWMI {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ComputerName,
+        [Parameter(Mandatory=$true)]
+        [string]$ServiceName
+    )
+    
+    try {
+        $service = Get-WmiObject -Class Win32_Service -Filter "Name='$ServiceName'" -ComputerName $ComputerName
+        if ($service) {
+            return $service.State
+        } else {
+            Write-Warning "O serviço $ServiceName não foi encontrado em $ComputerName."
+            return $null
+        }
+    } catch {
+        Write-Warning "Erro ao tentar obter o status do serviço $ServiceName em $ComputerName."
+        return $null
+    }
+}
+
 function Start-ServiceViaWMI {
     param (
         [Parameter(Mandatory=$true)]
-        [string] $ComputerName,
+        [string]$ComputerName,
         [Parameter(Mandatory=$true)]
-        [string] $ServiceName
+        [string]$ServiceName
     )
-
+    
     try {
         $service = Get-WmiObject -Class Win32_Service -Filter "Name='$ServiceName'" -ComputerName $ComputerName
-        $service.StartService()
-        Write-Output "$ServiceName foi iniciado em $ComputerName."
+        if ($service) {
+            $service.StartService()
+            Write-Output "O serviço $ServiceName foi iniciado em $ComputerName."
+        } else {
+            Write-Warning "O serviço $ServiceName não foi encontrado em $ComputerName."
+        }
     } catch {
-        Write-Warning "Falha ao iniciar $ServiceName em $ComputerName via WMI."
+        Write-Warning "Erro ao tentar iniciar o serviço $ServiceName em $ComputerName."
     }
 }
 
-# Roteiro principal
-$allConsoles = @('bitcon1', 'bitcon2') # Lista reduzida para brevidade
-
-foreach ($console in $allConsoles) {
-    # Teste de conectividade básica
-    if (-not (Test-BasicConnectivity -ComputerName $console)) {
-        continue
-    }
-
-    # Testando WS-Management e WinRM via Invoke-Command ou WMI como fallback
-    try {
-        Write-Output "Verificando WS-Management em $console via Invoke-Command..."
-        $wsManStatus = Invoke-Command -ComputerName $console -ScriptBlock {
-            (Get-Service -Name "winmgmt").Status
-        }
-        Write-Output "WS-Management em $console está $wsManStatus."
-    } catch {
-        Write-Warning "Invoke-Command falhou para WS-Management em $console. Tentando WMI."
-        $wsManStatus = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName "winmgmt"
-    }
-
-    # Se os serviços não estiverem rodando, tente iniciá-los
-    if ($wsManStatus -ne 'Running') {
-        Write-Output "Tentando iniciar WS-Management em $console via Invoke-Command..."
-        try {
-            Invoke-Command -ComputerName $console -ScriptBlock {
-                Start-Service -Name "winmgmt"
+function Main {
+    Test-AdminPrivilege
+    $env = Get-Environment
+    if ($env -eq "ems") {
+        Set-ExecutionPolicyIfRequired
+        foreach ($console in $allConsoles) {
+            # Teste de conectividade básica
+            if (-not (Test-BasicConnectivity -ComputerName $console)) {
+                continue
             }
-            Write-Output "WS-Management iniciado com sucesso em $console."
-        } catch {
-            Write-Warning "Invoke-Command falhou ao iniciar WS-Management em $console. Tentando via WMI."
-            Start-ServiceViaWMI -ComputerName $console -ServiceName "winmgmt"
-        }
-    }
 
-    # Lógica similar para WinRM
-    try {
-        Write-Output "Verificando WinRM em $console via Invoke-Command..."
-        $winRMStatus = Invoke-Command -ComputerName $console -ScriptBlock {
-            (Get-Service -Name "WinRM").Status
-        }
-        Write-Output "WinRM em $console está $winRMStatus."
-    } catch {
-        Write-Warning "Invoke-Command falhou para WinRM em $console. Tentando WMI."
-        $winRMStatus = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName "WinRM"
-    }
-
-    if ($winRMStatus -ne 'Running') {
-        Write-Output "Tentando iniciar WinRM em $console via Invoke-Command..."
-        try {
-            Invoke-Command -ComputerName $console -ScriptBlock {
-                Start-Service -Name "WinRM"
+            # Verificar o status dos serviços
+            $servicesToCheck = @('WinRM', 'WS-Management')
+            foreach ($service in $servicesToCheck) {
+                $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
+                if ($status -eq "Stopped") {
+                    Write-Warning "O serviço $service em $console está parado. Tentando iniciá-lo..."
+                    Start-ServiceViaWMI -ComputerName $console -ServiceName $service
+                } elseif ($status -eq "Running") {
+                    Write-Output "O serviço $service em $console já está em execução."
+                } else {
+                    Write-Warning "Não foi possível determinar o status do serviço $service em $console."
+                }
             }
-            Write-Output "WinRM iniciado com sucesso em $console."
-        } catch {
-            Write-Warning "Invoke-Command falhou ao iniciar WinRM em $console. Tentando via WMI."
-            Start-ServiceViaWMI -ComputerName $console -ServiceName "WinRM"
         }
+    } else {
+        Write-Warning "O script foi encerrado porque o domínio não pertence ao EMS-SCADA."
     }
 }
 
+Main
+
+Stop-Transcript
