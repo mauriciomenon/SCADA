@@ -1,4 +1,4 @@
-# changeSvcLink para SSA 202312444
+# verifica servicos remotos e tenta habilitar para SSA 202312444
 # Autor: Mauricio Menon
 # Versão 1.3 13/08/2023
 # Desenvolvido para PowerShell 5.1
@@ -30,9 +30,6 @@ function Test-AdminPrivilege {
         exit
     }
 }
-
-# O restante do script permanece o mesmo...
-
 
 function Get-Environment {
     $domain = $env:USERDNSDOMAIN
