@@ -3,7 +3,8 @@
 # Versão 1.3 13/08/2023
 # Desenvolvido para PowerShell 5.1
 
-$logFile = Join-Path -Path (Get-Location).Path -ChildPath "logfile.txt"
+$logFile = Join-Path -Path $PSScriptRoot -ChildPath ("logfile_" + (Get-Date -Format 'yyyyMMdd_HHmm') + ".txt")
+
 Start-Transcript -Path $logFile
 
 # Definicao de lista de consoles do CCR e Despacho
@@ -35,7 +36,7 @@ function Test-AdminPrivilege {
 function Get-Environment {
     $domain = $env:USERDNSDOMAIN
     if ($null -eq $domain) {
-        Write-Warning "Variavel de domínio nao esta definida."
+        Write-Warning "Variavel de dominio nao esta definida."
         return $null
     }
     $domain = $domain.ToLower()
@@ -64,7 +65,6 @@ function Test-BasicConnectivity {
         [Parameter(Mandatory=$true)]
         [string]$ComputerName
     )
-    
     if (!(Test-Connection -ComputerName $ComputerName -Count 1 -Quiet)) {
         Write-Warning "Falha na conectividade básica com $ComputerName."
         return $false
@@ -86,7 +86,7 @@ function Get-ServiceStatusViaWMI {
         if ($service) {
             return $service.State
         } else {
-            Write-Warning "O servico $ServiceName não foi encontrado em $ComputerName."
+            Write-Warning "O servico $ServiceName nao foi encontrado em $ComputerName."
             return $null
         }
     } catch {
@@ -119,7 +119,7 @@ function Start-ServiceViaWMI {
 function Main {
     Test-AdminPrivilege
     $env = Get-Environment
-    if ($env -eq "ems") {
+    if ($env -eq "ems" -or $env -eq "itaipu") {
         Set-ExecutionPolicyIfRequired
         foreach ($console in $allConsoles) {
             # Teste de conectividade básica
@@ -135,7 +135,7 @@ function Main {
                     Write-Warning "O servico $service em $console esta parado. Tentando inicia-lo..."
                     Start-ServiceViaWMI -ComputerName $console -ServiceName $service
                 } elseif ($status -eq "Running") {
-                    Write-Output "O servico $service em $console ja está em execucao."
+                    Write-Output "O servico $service em $console ja esta em execucao."
                 } else {
                     Write-Warning "Nao foi possivel determinar o status do servico $service em $console."
                 }

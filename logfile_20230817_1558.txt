@@ -1,6 +1,6 @@
 ﻿**********************
 Início da transcrição do Windows PowerShell
-Hora de início: 20230817143606
+Hora de início: 20230817155807
 Nome de Usuário: ITAIPU\menon
 Executar como Usuário: ITAIPU\menon
 Nome da Configuração: 
@@ -21,10 +21,12 @@ WSManStackVersion: 3.0
 PSRemotingProtocolVersion: 2.3
 SerializationVersion: 1.1.0.1
 **********************
-Transcrição iniciada, o arquivo de saída é C:\Users\menon\git\SCADA\logfile.txt
+Transcrição iniciada, o arquivo de saída é C:\Users\menon\git\SCADA\logfile_20230817_1558.txt
 AVISO: A verificacao de privilegios de administrador e aplicavel apenas em sistemas Windows.
-AVISO: O script foi encerrado porque o dominio nao pertence ao EMS-SCADA.
+O servico WinRM em localhost ja esta em execucao.
+AVISO: O servico WS-Management nao foi encontrado em localhost.
+AVISO: Nao foi possivel determinar o status do servico WS-Management em localhost.
 **********************
 Fim da transcrição do Windows PowerShell
-Hora de término: 20230817143606
+Hora de término: 20230817155808
 **********************
