@@ -1,6 +1,6 @@
 # verifica servicos remotos e tenta habilitar para SSA 202312444
 # Autor: Mauricio Menon
-# Versão 1.3 13/08/2023
+# Versão 1.4 17/08/2023
 # Desenvolvido para PowerShell 5.1
 
 $logFile = Join-Path -Path $PSScriptRoot -ChildPath ("logfile_" + (Get-Date -Format 'yyyyMMdd_HHmm') + ".txt")
@@ -14,7 +14,7 @@ $allConsoles = @('localhost')
 function Test-AdminPrivilege {
     # Se não for Windows, simplesmente retorne
     if ($PSVersionTable.Platform -ne "Win32NT") {
-        Write-Warning "A verificacao de privilegios de administrador e aplicavel apenas em sistemas Windows."
+        Write-Output "A verificacao de privilegios de administrador e aplicavel apenas em sistemas Windows."
         return
     }
     
@@ -28,7 +28,7 @@ function Test-AdminPrivilege {
             Write-Output 'Executado como usuario administrador'
         }
     } catch {
-        Write-Warning "Erro ao verificar privilegios de administrador: $_"
+        Write-Error "Erro ao verificar privilegios de administrador: $_"
         exit
     }
 }
@@ -36,7 +36,7 @@ function Test-AdminPrivilege {
 function Get-Environment {
     $domain = $env:USERDNSDOMAIN
     if ($null -eq $domain) {
-        Write-Warning "Variavel de dominio nao esta definida."
+        Write-Error "Variavel de dominio nao esta definida."
         return $null
     }
     $domain = $domain.ToLower()
@@ -48,7 +48,7 @@ function Get-Environment {
         return "itaipu"                             
     }
     else {
-        Write-Warning "Dominio nao pertencente ao EMS-SCADA"
+        Write-Error "Dominio nao pertencente ao EMS-SCADA"
         return $null
     }
 }
@@ -66,7 +66,7 @@ function Test-BasicConnectivity {
         [string]$ComputerName
     )
     if (!(Test-Connection -ComputerName $ComputerName -Count 1 -Quiet)) {
-        Write-Warning "Falha na conectividade básica com $ComputerName."
+        Write-Error "Falha na conectividade básica com $ComputerName."
         return $false
     }
     Write-Output "Conectividade basica com $ComputerName verificada com sucesso!"
