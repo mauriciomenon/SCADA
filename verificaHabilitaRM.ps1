@@ -42,9 +42,11 @@ function Get-Environment {
 
     if ($domain -match 'ems') {
         return "ems"
-    }      elseif ($domain -match 'itaipu') {       # para criar lista para a máquina local no caso de debug do script
-        return "itaipu"                             # depende de habilitação de serviço na máquina local
-    }    else {
+    }
+    elseif ($domain -match 'itaipu') {       
+        return "itaipu"                             
+    }
+    else {
         Write-Warning "Dominio nao pertencente ao EMS-SCADA"
         return $null
     }
