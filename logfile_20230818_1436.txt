@@ -1,0 +1,38 @@
+﻿**********************
+Início da transcrição do Windows PowerShell
+Hora de início: 20230818143624
+Nome de Usuário: ITAIPU\menon
+Executar como Usuário: ITAIPU\menon
+Nome da Configuração: 
+Computador: MENONW10W (Microsoft Windows NT 10.0.19044.0)
+Aplicativo Host: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -Command Import-Module 'c:\Users\menon\.vscode\extensions\ms-vscode.powershell-2023.6.0\modules\PowerShellEditorServices\PowerShellEditorServices.psd1'; Start-EditorServices -HostName 'Visual Studio Code Host' -HostProfileId 'Microsoft.VSCode' -HostVersion '2023.6.0' -AdditionalModules @('PowerShellEditorServices.VSCode') -BundledModulesPath 'c:\Users\menon\.vscode\extensions\ms-vscode.powershell-2023.6.0\modules' -EnableConsoleRepl -StartupBanner "PowerShell Extension v2023.6.0
+Copyright (c) Microsoft Corporation.
+
+https://aka.ms/vscode-powershell
+Type 'help' to get help.
+" -LogLevel 'Normal' -LogPath 'c:\Users\menon\AppData\Roaming\Code\User\globalStorage\ms-vscode.powershell\logs\1692355499-01772477-4031-4477-8f00-b779cf9cedc01692355497163\EditorServices.log' -SessionDetailsPath 'c:\Users\menon\AppData\Roaming\Code\User\globalStorage\ms-vscode.powershell\sessions\PSES-VSCode-44340-510733.json' -FeatureFlags @() 
+ID do Processo: 15212
+PSVersion: 5.1.19041.3031
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.19041.3031
+BuildVersion: 10.0.19041.3031
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcrição iniciada, o arquivo de saída é C:\Users\menon\git\SCADA\logfile_20230818_1436.txt
+A verificacao de privilegios de administrador e aplicavel apenas em sistemas Windows.
+Conectividade basica com localhost verificada com sucesso!
+WinRM
+Obtendo Status de WinRM via WMI
+WS-Management
+Obtendo Status de WS-Management via WMI
+O servico WS-Management nao foi encontrado em localhost via WMI.
+Fallback, tentativa de obter status de WS-Management via DCOM
+Fallback, tentativa de obter status de WS-Management via PsExec
+Fallback, tentativa de obter status de WS-Management via CIM
+**********************
+Fim da transcrição do Windows PowerShell
+Hora de término: 20230818143627
+**********************

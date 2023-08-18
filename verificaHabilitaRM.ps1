@@ -136,11 +136,78 @@ function Get-ServiceStatusViaDCOM {
     }
 }
 
+function Get-ServiceStatusViaPsExec {
+    param (
+        [string]$ComputerName,
+        [string]$ServiceName
+    )
+
+    try {
+        $output = & psexec \\$ComputerName -accepteula -nobanner net start | Out-String
+        if ($output -match $ServiceName) {
+            return "Running"
+        }
+        else {
+            return "Stopped"
+        }
+    }
+    catch {
+        Write-Error "Erro ao obter status do serviço via PsExec: $_"
+        return $null
+    }
+}
+
+function Get-ServiceStatusViaCIM {
+    param (
+        [string]$ComputerName,
+        [string]$ServiceName
+    )
+
+    try {
+        $service = Get-CimInstance -ClassName Win32_Service -Filter "Name='$ServiceName'" -ComputerName $ComputerName
+        if ($service -and $service.StartMode -eq 'Auto' -and $service.State -eq 'Running') {
+            return "Running"
+        }
+        else {
+            return "Stopped"
+        }
+    }
+    catch {
+        Write-Error "Erro ao obter status do serviço via CIM: $_"
+        return $null
+    }
+}
+
+function Get-ServiceStatusViaPsExec {
+    param (
+        [string]$ComputerName,
+        [string]$ServiceName
+    )
+
+    try {
+        # Defina o caminho completo para o PsExec
+        $psexecPath = "C:\Windows\System32\PSTools\PsExec.exe"
+        
+        # Use o caminho completo para executar o PsExec
+        $output = & $psexecPath \\$ComputerName -accepteula -nobanner net start | Out-String
+        if ($output -match $ServiceName) {
+            return "Running"
+        }
+        else {
+            return "Stopped"
+        }
+    }
+    catch {
+        Write-Error "Erro ao obter status do serviço via PsExec: $_"
+        return $null
+    }
+}
+
 function Start-ServiceViaDCOM {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$ComputerName,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$ServiceName
     )
 
@@ -150,28 +217,13 @@ function Start-ServiceViaDCOM {
             $service.Start()
             $service.WaitForStatus('Running', '00:02:00')
             Write-Host "O servico $ServiceName foi iniciado em $ComputerName via DCOM."
-        } else {
+        }
+        else {
             Write-Host "O servico $ServiceName tem estado inconclusivo. (DCOM)"
         }
-    } catch {
-        Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName via DCOM."
     }
-}
-
-function Start-ServiceViaPsExec {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$ComputerName,
-        [Parameter(Mandatory=$true)]
-        [string]$ServiceName
-    )
-
-    try {
-        $psexecPath = "C:\Windows\System32\PSTools"
-        & $psexecPath \\$ComputerName net start $ServiceName
-        Write-Host "O servico $ServiceName foi iniciado em $ComputerName via PsExec."
-    } catch {
-        Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName via PsExec."
+    catch {
+        Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName via DCOM."
     }
 }
 
@@ -200,7 +252,10 @@ function Start-ServiceViaCIM {
     }
 }
 
-function Main_Status {
+
+
+
+function Main {
     Test-AdminPrivilege
     $env = Get-Environment
     if ($env -eq "ems" -or $env -eq "itaipu") {
@@ -253,7 +308,50 @@ function Main_Status {
     }
 }
 
-Main
+function Main_Status {
+    Test-AdminPrivilege
+    $env = Get-Environment
+    if ($env -eq "ems" -or $env -eq "itaipu") {
+        Set-ExecutionPolicyIfRequired
+        foreach ($console in $allConsoles) {
+            # Teste de conectividade básica
+            if (-not (Test-BasicConnectivity -ComputerName $console)) {
+                continue
+            }
+
+            $servicesToCheck = @('WinRM', 'WS-Management')
+            foreach ($service in $servicesToCheck) {
+                Write-Host "$service"
+                Write-Host "Obtendo Status de $service via WMI"
+                try {
+                    $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
+
+                    if ($status -ne "Running") {
+                        Write-Host "Fallback, tentativa de obter status de $service via DCOM"
+                        $status = Get-ServiceStatusViaDCOM -ComputerName $console -ServiceName $service
+                    }
+                    if ($status -ne "Running") {
+                        Write-Host "Fallback, tentativa de obter status de $service via PsExec"
+                        $status = Get-ServiceStatusViaPsExec -ComputerName $console -ServiceName $service
+                    }
+                    if ($status -ne "Running") {
+                        Write-Host "Fallback, tentativa de obter status de $service via CIM"
+                        $status = Get-ServiceStatusViaCIM -ComputerName $console -ServiceName $service
+                    }
+                }
+                catch {
+                    Write-Warning "Exception"
+                }
+            }
+        }
+    }
+    else {
+        Write-Warning "O script foi encerrado porque o dominio nao pertence ao EMS-SCADA."
+    }
+}
+
+Main_Status
+
 
 Stop-Transcript
 
