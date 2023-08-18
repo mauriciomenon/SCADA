@@ -1,6 +1,6 @@
 # verifica servicos remotos e tenta habilitar para SSA 202312444
 # Autor: Mauricio Menon
-# Versão 1.4 17/08/2023
+# Versao 1.4 17/08/2023
 # Desenvolvido para PowerShell 5.1
 
 $logFile = Join-Path -Path $PSScriptRoot -ChildPath ("logfile_" + (Get-Date -Format 'yyyyMMdd_HHmm') + ".txt")
@@ -12,7 +12,7 @@ Start-Transcript -Path $logFile
 $allConsoles = @('localhost')
 
 function Test-AdminPrivilege {
-    # Se não for Windows, simplesmente retorne
+    # Se nao for Windows, simplesmente retorne
     if ($PSVersionTable.Platform -ne "Win32NT") {
         Write-Output "A verificacao de privilegios de administrador e aplicavel apenas em sistemas Windows."
         return
@@ -53,7 +53,7 @@ function Get-Environment {
     }
 }
 
-# Somente para a sessão atual
+# Somente para a sessao atual
 function Set-ExecutionPolicyIfRequired {
     if ((Get-ExecutionPolicy -Scope Process) -ne 'Unrestricted') {
         Set-ExecutionPolicy Unrestricted -Scope Process -Force
@@ -90,7 +90,7 @@ function Get-ServiceStatusViaWMI {
             return $null
         }
     } catch {
-        Write-Warning "Erro ao tentar obter o status do serviço $ServiceName em $ComputerName."
+        Write-Warning "Erro ao tentar obter o status do servico $ServiceName em $ComputerName."
         return $null
     }
 }
@@ -128,7 +128,7 @@ function Get-ServiceStatusViaDCOM {
         $service = New-Object System.ServiceProcess.ServiceController $ServiceName, $ComputerName
         return $service.Status
     } catch {
-        Write-Warning "Erro ao tentar obter o status do serviço $ServiceName em $ComputerName via DCOM."
+        Write-Warning "Erro ao tentar obter o status do servico $ServiceName em $ComputerName via DCOM."
         return $null
     }
 }
@@ -146,15 +146,56 @@ function Start-ServiceViaDCOM {
         if ($service.Status -eq 'Stopped') {
             $service.Start()
             $service.WaitForStatus('Running', '00:02:00')
-            Write-Output "O serviço $ServiceName foi iniciado em $ComputerName via DCOM."
+            Write-Output "O servico $ServiceName foi iniciado em $ComputerName via DCOM."
         } else {
-            Write-Output "O serviço $ServiceName já está em execução em $ComputerName."
+            Write-Output "O servico $ServiceName ja esta em execucao em $ComputerName."
         }
     } catch {
-        Write-Warning "Erro ao tentar iniciar o serviço $ServiceName em $ComputerName via DCOM."
+        Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName via DCOM."
     }
 }
 
+function Start-ServiceViaPsExec {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ComputerName,
+        [Parameter(Mandatory=$true)]
+        [string]$ServiceName
+    )
+
+    try {
+        $psexecPath = "C:\Path\To\PsExec.exe" # Substitua pelo caminho correto para o PsExec em seu sistema
+        & $psexecPath \\$ComputerName net start $ServiceName
+        Write-Output "O servico $ServiceName foi iniciado em $ComputerName via PsExec."
+    } catch {
+        Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName via PsExec."
+    }
+}
+
+function Start-ServiceViaCIM {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ComputerName,
+        [Parameter(Mandatory=$true)]
+        [string]$ServiceName
+    )
+
+    try {
+        $service = Get-CimInstance -ClassName Win32_Service -Filter "Name='$ServiceName'" -ComputerName $ComputerName
+        if ($null -ne $service) {
+            if ($service.State -eq 'Stopped') {
+                Invoke-CimMethod -InputObject $service -MethodName 'StartService'
+                Write-Output "O servico $ServiceName foi iniciado em $ComputerName via CIM."
+            } else {
+                Write-Output "O servico $ServiceName ja esta em execucao em $ComputerName."
+            }
+        } else {
+            Write-Warning "O servico $ServiceName nao foi encontrado em $ComputerName."
+        }
+    } catch {
+        Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName via CIM."
+    }
+}
 
 function Main {
     Test-AdminPrivilege
@@ -167,7 +208,7 @@ function Main {
                 continue
             }
 
-            # Verificar o status dos serviços
+            # Verificar o status dos servicos
             $servicesToCheck = @('WinRM', 'WS-Management')
             foreach ($service in $servicesToCheck) {
                 $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
@@ -176,25 +217,33 @@ function Main {
                     $status = Get-ServiceStatusViaDCOM -ComputerName $console -ServiceName $service
                 }
                 if ($status -eq "Stopped") {
-                    Write-Warning "O serviço $service em $console está parado. Tentando iniciá-lo..."
+                    Write-Warning "O servico $service em $console está parado. Tentando iniciá-lo..."
                     Start-ServiceViaWMI -ComputerName $console -ServiceName $service
                     # Tentar via DCOM se o WMI falhar
                     if ($status -eq $null) {
                         Start-ServiceViaDCOM -ComputerName $console -ServiceName $service
                     }
+                    # Tentativa adicional via PsExec se as outras falharem
+                    if ($status -eq $null) {
+                        Start-ServiceViaPsExec -ComputerName $console -ServiceName $service
+                    }
+                    # Tentativa adicional via CIM se as outras falharem
+                    if ($status -eq $null) {
+                        Start-ServiceViaCIM -ComputerName $console -ServiceName $service
+                    }
                 } elseif ($status -eq "Running") {
-                    Write-Output "O serviço $service em $console já está em execução."
+                    Write-Output "O servico $service em $console já está em execucaoo."
                 } else {
-                    Write-Warning "Não foi possível determinar o status do serviço $service em $console."
+                    Write-Warning "Nao foi possivel determinar o status do servico $service em $console."
                 }
             }
         }
     } else {
-        Write-Warning "O script foi encerrado porque o domínio não pertence ao EMS-SCADA."
+        Write-Warning "O script foi encerrado porque o dominio nao pertence ao EMS-SCADA."
     }
 }
-
 
 Main
 
 Stop-Transcript
+
