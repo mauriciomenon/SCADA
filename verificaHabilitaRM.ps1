@@ -7,6 +7,8 @@ $logFile = Join-Path -Path $PSScriptRoot -ChildPath ("logfile_" + (Get-Date -For
 
 Start-Transcript -Path $logFile
 
+Add-Type -AssemblyName "System.ServiceProcess"
+
 # Definicao de lista de consoles do CCR e Despacho
 #$allConsoles = @('bitcon1', 'bitcon2', 'bitcon3', 'bitcon4', 'bitcon5', 'bitcon6', 'bitcon7', 'bitcon8', 'bitcon9', 'bitcon10', 'bitcon11', 'bitcon12', 'bitco31', 'bitcon32')
 $allConsoles = @('localhost')
@@ -14,7 +16,7 @@ $allConsoles = @('localhost')
 function Test-AdminPrivilege {
     # Se nao for Windows, simplesmente retorne
     if ($PSVersionTable.Platform -ne "Win32NT") {
-        Write-Output "A verificacao de privilegios de administrador e aplicavel apenas em sistemas Windows."
+        Write-Host "A verificacao de privilegios de administrador e aplicavel apenas em sistemas Windows."
         return
     }
     
@@ -25,7 +27,7 @@ function Test-AdminPrivilege {
             exit
         }
         else {
-            Write-Output 'Executado como usuario administrador'
+            Write-Host 'Executado como usuario administrador'
         }
     } catch {
         Write-Error "Erro ao verificar privilegios de administrador: $_"
@@ -62,14 +64,14 @@ function Set-ExecutionPolicyIfRequired {
 
 function Test-BasicConnectivity {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$ComputerName
     )
     if (!(Test-Connection -ComputerName $ComputerName -Count 1 -Quiet)) {
-        Write-Error "Falha na conectividade básica com $ComputerName."
+        Write-Host "Falha na conectividade básica com $ComputerName." -ForegroundColor Red
         return $false
     }
-    Write-Output "Conectividade basica com $ComputerName verificada com sucesso!"
+    Write-Host "Conectividade basica com $ComputerName verificada com sucesso!" -ForegroundColor Green
     return $true
 }
 
@@ -86,11 +88,11 @@ function Get-ServiceStatusViaWMI {
         if ($null -ne $service) {
             return $service.State
         } else {
-            Write-Warning "O servico $ServiceName nao foi encontrado em $ComputerName."
+            Write-Host "O servico $ServiceName nao foi encontrado em $ComputerName via WMI." 
             return $null
         }
     } catch {
-        Write-Warning "Erro ao tentar obter o status do servico $ServiceName em $ComputerName."
+        Write-Host "Erro ao tentar obter o status do servico $ServiceName em $ComputerName via WMI."
         return $null
     }
 }
@@ -107,12 +109,12 @@ function Start-ServiceViaWMI {
         $service = Get-WmiObject -Class Win32_Service -Filter "Name='$ServiceName'" -ComputerName $ComputerName
         if ($null -ne $service) {
             $service.StartService()
-            Write-Output "O servico $ServiceName foi iniciado em $ComputerName."
+            Write-Host "O servico $ServiceName foi iniciado em $ComputerName. via WMI"
         } else {
-            Write-Warning "O servico $ServiceName nao foi encontrado em $ComputerName."
+            Write-Warning "O servico $ServiceName nao foi iniciado/encontrado em $ComputerName via WMI. "
         }
     } catch {
-        Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName."
+        Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName via WMI."
     }
 }
 
@@ -127,6 +129,7 @@ function Get-ServiceStatusViaDCOM {
     try {
         $service = New-Object System.ServiceProcess.ServiceController $ServiceName, $ComputerName
         return $service.Status
+        echo $service.Status
     } catch {
         Write-Warning "Erro ao tentar obter o status do servico $ServiceName em $ComputerName via DCOM."
         return $null
@@ -146,9 +149,9 @@ function Start-ServiceViaDCOM {
         if ($service.Status -eq 'Stopped') {
             $service.Start()
             $service.WaitForStatus('Running', '00:02:00')
-            Write-Output "O servico $ServiceName foi iniciado em $ComputerName via DCOM."
+            Write-Host "O servico $ServiceName foi iniciado em $ComputerName via DCOM."
         } else {
-            Write-Output "O servico $ServiceName ja esta em execucao em $ComputerName."
+            Write-Host "O servico $ServiceName tem estado inconclusivo. (DCOM)"
         }
     } catch {
         Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName via DCOM."
@@ -164,9 +167,9 @@ function Start-ServiceViaPsExec {
     )
 
     try {
-        $psexecPath = "C:\Path\To\PsExec.exe" # Substitua pelo caminho correto para o PsExec em seu sistema
+        $psexecPath = "C:\Windows\System32\PSTools"
         & $psexecPath \\$ComputerName net start $ServiceName
-        Write-Output "O servico $ServiceName foi iniciado em $ComputerName via PsExec."
+        Write-Host "O servico $ServiceName foi iniciado em $ComputerName via PsExec."
     } catch {
         Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName via PsExec."
     }
@@ -185,19 +188,19 @@ function Start-ServiceViaCIM {
         if ($null -ne $service) {
             if ($service.State -eq 'Stopped') {
                 Invoke-CimMethod -InputObject $service -MethodName 'StartService'
-                Write-Output "O servico $ServiceName foi iniciado em $ComputerName via CIM."
+                Write-Host "O servico $ServiceName foi iniciado em $ComputerName via CIM."
             } else {
-                Write-Output "O servico $ServiceName ja esta em execucao em $ComputerName."
+                Write-Host "O servico $ServiceName ja esta em execucao em $ComputerName  (verificacao via CIM)."
             }
         } else {
-            Write-Warning "O servico $ServiceName nao foi encontrado em $ComputerName."
+            Write-Host "O servico $ServiceName nao foi encontrado em $ComputerName (verificacao via CIM)."
         }
     } catch {
         Write-Warning "Erro ao tentar iniciar o servico $ServiceName em $ComputerName via CIM."
     }
 }
 
-function Main {
+function Main_Status {
     Test-AdminPrivilege
     $env = Get-Environment
     if ($env -eq "ems" -or $env -eq "itaipu") {
@@ -211,30 +214,37 @@ function Main {
             # Verificar o status dos servicos
             $servicesToCheck = @('WinRM', 'WS-Management')
             foreach ($service in $servicesToCheck) {
+                Write-Host "$service"
+                Write-Host "Obtendo Status de $service via WMI"
                 $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
-                if ($status -eq $null) {
-                    # Tentar via DCOM se o WMI falhar
+                
+                if ($status -ne "Running") {
+                    Write-Host "Fallback, tentativa de obter status de $service via DCOM"
                     $status = Get-ServiceStatusViaDCOM -ComputerName $console -ServiceName $service
-                }
-                if ($status -eq "Stopped") {
-                    Write-Warning "O servico $service em $console está parado. Tentando iniciá-lo..."
+                                    }
+               
+                if ($status -ne "Running") {
+                    Write-Host "O servico $service em $console tem o estado diferente de Running. Tentando inicia-lo via WMI."
                     Start-ServiceViaWMI -ComputerName $console -ServiceName $service
-                    # Tentar via DCOM se o WMI falhar
-                    if ($status -eq $null) {
+
+                    if ($status -ne "Running") {
                         Start-ServiceViaDCOM -ComputerName $console -ServiceName $service
+                        Write-Host "Tentativa adicional via DCOM"
                     }
                     # Tentativa adicional via PsExec se as outras falharem
-                    if ($status -eq $null) {
+                    if ($status -ne "Running") {
                         Start-ServiceViaPsExec -ComputerName $console -ServiceName $service
+                        Write-Host "Tentativa adicional via PsExec"
                     }
                     # Tentativa adicional via CIM se as outras falharem
-                    if ($status -eq $null) {
+                    if ($status -ne "Running") {
                         Start-ServiceViaCIM -ComputerName $console -ServiceName $service
+                        Write-Host "Tentativa adicional via CIM"
                     }
                 } elseif ($status -eq "Running") {
-                    Write-Output "O servico $service em $console já está em execucaoo."
+                    Write-Host "O servico $service em $console esta em execucao (Running)." 
                 } else {
-                    Write-Warning "Nao foi possivel determinar o status do servico $service em $console."
+                    Write-Warning "Nao foi possivel determinar o status do servico $service em $console (WMI, DCOM, PsExec e CIM)."
                 }
             }
         }
