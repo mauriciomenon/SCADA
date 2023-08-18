@@ -116,6 +116,46 @@ function Start-ServiceViaWMI {
     }
 }
 
+function Get-ServiceStatusViaDCOM {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ComputerName,
+        [Parameter(Mandatory=$true)]
+        [string]$ServiceName
+    )
+
+    try {
+        $service = New-Object System.ServiceProcess.ServiceController $ServiceName, $ComputerName
+        return $service.Status
+    } catch {
+        Write-Warning "Erro ao tentar obter o status do serviço $ServiceName em $ComputerName via DCOM."
+        return $null
+    }
+}
+
+function Start-ServiceViaDCOM {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ComputerName,
+        [Parameter(Mandatory=$true)]
+        [string]$ServiceName
+    )
+
+    try {
+        $service = New-Object System.ServiceProcess.ServiceController $ServiceName, $ComputerName
+        if ($service.Status -eq 'Stopped') {
+            $service.Start()
+            $service.WaitForStatus('Running', '00:02:00')
+            Write-Output "O serviço $ServiceName foi iniciado em $ComputerName via DCOM."
+        } else {
+            Write-Output "O serviço $ServiceName já está em execução em $ComputerName."
+        }
+    } catch {
+        Write-Warning "Erro ao tentar iniciar o serviço $ServiceName em $ComputerName via DCOM."
+    }
+}
+
+
 function Main {
     Test-AdminPrivilege
     $env = Get-Environment
@@ -128,23 +168,32 @@ function Main {
             }
 
             # Verificar o status dos serviços
-            $servicesToCheck = @('WinRM', 'wmi') # Modifiquei 'WS-Management' para 'wmi'
+            $servicesToCheck = @('WinRM', 'WS-Management')
             foreach ($service in $servicesToCheck) {
                 $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
+                if ($status -eq $null) {
+                    # Tentar via DCOM se o WMI falhar
+                    $status = Get-ServiceStatusViaDCOM -ComputerName $console -ServiceName $service
+                }
                 if ($status -eq "Stopped") {
-                    Write-Warning "O servico $service em $console esta parado. Tentando inicia-lo..."
+                    Write-Warning "O serviço $service em $console está parado. Tentando iniciá-lo..."
                     Start-ServiceViaWMI -ComputerName $console -ServiceName $service
+                    # Tentar via DCOM se o WMI falhar
+                    if ($status -eq $null) {
+                        Start-ServiceViaDCOM -ComputerName $console -ServiceName $service
+                    }
                 } elseif ($status -eq "Running") {
-                    Write-Output "O servico $service em $console ja esta em execucao."
+                    Write-Output "O serviço $service em $console já está em execução."
                 } else {
-                    Write-Warning "Nao foi possivel determinar o status do servico $service em $console."
+                    Write-Warning "Não foi possível determinar o status do serviço $service em $console."
                 }
             }
         }
     } else {
-        Write-Warning "O script foi encerrado porque o dominio nao pertence ao EMS-SCADA."
+        Write-Warning "O script foi encerrado porque o domínio não pertence ao EMS-SCADA."
     }
 }
+
 
 Main
 
