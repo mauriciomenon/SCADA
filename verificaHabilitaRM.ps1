@@ -83,7 +83,7 @@ function Get-ServiceStatusViaWMI {
     
     try {
         $service = Get-WmiObject -Class Win32_Service -Filter "Name='$ServiceName'" -ComputerName $ComputerName
-        if ($service) {
+        if ($null -ne $service) {
             return $service.State
         } else {
             Write-Warning "O servico $ServiceName nao foi encontrado em $ComputerName."
@@ -105,7 +105,7 @@ function Start-ServiceViaWMI {
     
     try {
         $service = Get-WmiObject -Class Win32_Service -Filter "Name='$ServiceName'" -ComputerName $ComputerName
-        if ($service) {
+        if ($null -ne $service) {
             $service.StartService()
             Write-Output "O servico $ServiceName foi iniciado em $ComputerName."
         } else {
@@ -128,7 +128,7 @@ function Main {
             }
 
             # Verificar o status dos serviços
-            $servicesToCheck = @('WinRM', 'WS-Management')
+            $servicesToCheck = @('WinRM', 'wmi') # Modifiquei 'WS-Management' para 'wmi'
             foreach ($service in $servicesToCheck) {
                 $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
                 if ($status -eq "Stopped") {
