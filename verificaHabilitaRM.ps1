@@ -1,6 +1,6 @@
 # verifica servicos remotos e tenta habilitar para SSA 202312444
 # Autor: Mauricio Menon
-# Versao 1.4 17/08/2023
+# Versao 1.5 17/08/2023
 # Desenvolvido para PowerShell 5.1
 
 $logFile = Join-Path -Path $PSScriptRoot -ChildPath ("logfile_" + (Get-Date -Format 'yyyyMMdd_HHmm') + ".txt")
