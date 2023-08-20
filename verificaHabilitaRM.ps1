@@ -129,7 +129,6 @@ function Get-ServiceStatusViaDCOM {
     try {
         $service = New-Object System.ServiceProcess.ServiceController $ServiceName, $ComputerName
         return $service.Status
-        echo $service.Status
     } catch {
         Write-Warning "Erro ao tentar obter o status do servico $ServiceName em $ComputerName via DCOM."
         return $null
@@ -350,8 +349,62 @@ function Main_Status {
     }
 }
 
+function Main_Habilita {
+    Test-AdminPrivilege
+    Set-ExecutionPolicyIfRequired
+    foreach ($console in $allConsoles) {
+        # Teste de conectividade básica
+        if (-not (Test-BasicConnectivity -ComputerName $console)) {
+            continue
+        }
+
+        # Verificar o status dos servicos
+        $servicesToCheck = @('WinRM', 'WS-Management')
+        foreach ($service in $servicesToCheck) {
+            Write-Host "$service"
+            $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
+            if ($status -eq $null) {
+                # Tentar via DCOM se o WMI falhar
+                $status = Get-ServiceStatusViaDCOM -ComputerName $console -ServiceName $service
+            }
+
+            if ($status -ne "Running") {
+                Write-Host "O servico $service em $console tem o estado diferente de Running. Tentando inicia-lo via WMI."
+                Start-ServiceViaWMI -ComputerName $console -ServiceName $service
+                $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
+
+                if ($status -ne "Running") {
+                    Start-ServiceViaDCOM -ComputerName $console -ServiceName $service
+                    Write-Host "Tentativa adicional via DCOM"
+                    $status = Get-ServiceStatusViaDCOM -ComputerName $console -ServiceName $service
+                }
+                # Tentativa adicional via PsExec se as outras falharem
+                if ($status -ne "Running") {
+                    Start-ServiceViaPsExec -ComputerName $console -ServiceName $service
+                    Write-Host "Tentativa adicional via PsExec"
+                    $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
+                }
+                # Tentativa adicional via CIM se as outras falharem
+                if ($status -ne "Running") {
+                    Start-ServiceViaCIM -ComputerName $console -ServiceName $service
+                    Write-Host "Tentativa adicional via CIM"
+                    $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
+                }
+            }
+            elseif ($status -eq "Running") {
+                Write-Host "O servico $service em $console esta em execucao (Running)." 
+            }
+            else {
+                Write-Warning "Nao foi possivel determinar o status do servico $service em $console (WMI, DCOM, PsExec e CIM)."
+            }
+        }
+    }
+}
+
+
 Main_Status
 
+Main_Habilita
 
 Stop-Transcript
 
