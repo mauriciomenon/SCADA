@@ -251,9 +251,7 @@ function Start-ServiceViaCIM {
     }
 }
 
-
-
-
+# funcao legada, separada em duas. Codigo mantido para referencia.
 function Main {
     Test-AdminPrivilege
     $env = Get-Environment
@@ -363,7 +361,7 @@ function Main_Habilita {
         foreach ($service in $servicesToCheck) {
             Write-Host "$service"
             $status = Get-ServiceStatusViaWMI -ComputerName $console -ServiceName $service
-            if ($status -eq $null) {
+            if ($status -ne "Running") {
                 # Tentar via DCOM se o WMI falhar
                 $status = Get-ServiceStatusViaDCOM -ComputerName $console -ServiceName $service
             }
