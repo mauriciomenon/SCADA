@@ -251,6 +251,30 @@ function Start-ServiceViaCIM {
     }
 }
 
+function Start-ServiceViaPsExec {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$ComputerName,
+        [Parameter(Mandatory = $true)]
+        [string]$ServiceName
+    )
+
+    try {
+        $psexecPath = "C:\Windows\System32\PSTools\PsExec.exe"
+        
+        $output = & $psexecPath \\$ComputerName -accepteula -nobanner net start $ServiceName | Out-String
+        if ($output -match "O serviço foi iniciado com sucesso") {
+            Write-Host "O serviço $ServiceName foi iniciado em $ComputerName via PsExec."
+        }
+        else {
+            Write-Warning "Falha ao iniciar o serviço $ServiceName em $ComputerName via PsExec."
+        }
+    }
+    catch {
+        Write-Error "Erro ao iniciar o serviço via PsExec: $_"
+    }
+}
+
 # funcao legada, separada em duas. Codigo mantido para referencia.
 function Main {
     Test-AdminPrivilege
@@ -337,7 +361,7 @@ function Main_Status {
                     }
                 }
                 catch {
-                    Write-Warning "Exception"
+                    Write-Warning "Erro"
                 }
             }
         }
