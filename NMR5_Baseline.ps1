@@ -7,7 +7,7 @@
 # TO DO
 # - Setar codificação para caracteres com acento
 # - Reimplantar scriptblock que foi retirado para debug
-# - Lista de conexoes com sucesso
+# - Lista de conexoes com sucesso;
 
 # Definicao de lista de consoles e servidores do EMS(inclui DTS) e PDS
 # EMS Console and Server Lists
