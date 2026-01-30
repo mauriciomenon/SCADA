@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ajuste de Nomes de Arquivos para MS Teams</title>
+    <style>
+      /* Reset e Estilos Básicos */
+      :root {
+        --bg-color: #f5f5f5;
+        --card-bg: #ffffff;
+        --text-color: #333333;
+        --border-color: #cccccc;
+        --primary-color: #0078d4;
+        --btn-hover: #005a9e;
+        --font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+        /* Cores de Status */
+        --status-wait-text: #ccc;
+        --status-wait-border: #e0e0e0; /* Alterado para sólido e visível */
+        --status-error-text: #a15f58;
+        --status-error-bg: transparent;
+
+        /* Variáveis reutilizadas para resultado e notificação */
+        --status-result-text: #333333;
+        --status-result-bg: transparent;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-family);
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        line-height: 1.3;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      /* Layout Container */
+      .container {
+        width: 100%;
+        max-width: 800px;
+        background: transparent;
+        flex-grow: 1;
+      }
+
+      header {
+        text-align: left;
+        margin-bottom: 15px;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 15px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        color: var(--text-color);
+        font-weight: 600;
+      }
+
+      p.desc {
+        font-size: 0.9rem;
+        color: #555;
+        margin-top: 15px;
+        max-width: 100%;
+      }
+
+      /* Cards de Seção */
+      .section-card {
+        background-color: var(--card-bg);
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        padding: 15px 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        width: 100%;
+      }
+
+      .section-header {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+      }
+
+      /* Inputs e Textareas */
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 0.85rem;
+      }
+
+      textarea {
+        width: 100%;
+        height: 80px;
+        padding: 5px;
+        border: 1px solid var(--border-color);
+        border-radius: 2px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 0.85rem;
+        resize: vertical;
+        background-color: #fafafa;
+        color: #333;
+      }
+
+      textarea:focus {
+        outline: 2px solid var(--primary-color);
+        border-color: transparent;
+      }
+
+      textarea::placeholder {
+        color: #bbb;
+        opacity: 0.7;
+      }
+
+      /* Botões */
+      .actions {
+        margin-top: 15px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: center; /* Garante alinhamento vertical central */
+      }
+
+      button {
+        padding: 6px 14px;
+        border: none;
+        border-radius: 2px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        text-transform: uppercase;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--btn-hover);
+      }
+
+      .btn-secondary {
+        background-color: #f0f0f0;
+        color: #333;
+        border: 1px solid #ccc;
+      }
+
+      .btn-secondary:hover {
+        background-color: #e0e0e0;
+      }
+
+      /* Área de Resultado - Configuração Tripla */
+      .result-box {
+        /* Ajuste de altura para combinar com os botões */
+        padding: 6px 10px;
+        border-radius: 2px;
+        font-family: Consolas, "Courier New", monospace;
+        word-break: break-all;
+        min-height: 34px; /* Altura mínima para alinhar com os botões */
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+        white-space: pre-wrap;
+        display: flex;
+        align-items: center; /* Centraliza verticalmente o texto */
+        flex-grow: 1;
+        min-width: 200px;
+        margin-bottom: 0;
+      }
+
+      /* Estado: Aguardando (Base) */
+      .result-box {
+        color: var(--status-wait-text);
+        background-color: transparent;
+        /* AJUSTE: Borda sólida e visível sempre */
+        border: 1px solid var(--status-wait-border);
+        opacity: 0.8;
+        border-left-width: 1px;
+      }
+
+      /* Estado: Erro */
+      .result-box.is-error {
+        opacity: 1;
+        color: var(--status-error-text);
+        background-color: var(--status-error-bg);
+        border: 1px solid var(--status-error-text);
+        border-left-width: 2px;
+      }
+
+      /* Estado: Resultado Final (Renomeado de is-success para is-result) */
+      .result-box.is-result {
+        opacity: 1;
+        color: var(--status-result-text);
+        background-color: var(--status-result-bg);
+        border: 1px solid #e0e0e0;
+        border-left-width: 2px;
+
+        /* Ajustes solicitados exclusivamente para resultado */
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+
+      /* Estado: Notificação (Copiado) */
+      .result-box.is-notification {
+        opacity: 1;
+        color: #444444; /* AJUSTE: Fonte Cinza Escuro */
+        background-color: transparent;
+        /* AJUSTE: Contorno sólido consistente */
+        border: 1px solid #e0e0e0;
+        border-left-width: 2px;
+        font-style: italic;
+      }
+
+      /* Tabela */
+      table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+        margin-top: 5px;
+      }
+
+      th,
+      td {
+        text-align: center;
+        padding: 4px 2px;
+        border-bottom: 1px solid #eee;
+        width: 16.66%;
+        vertical-align: middle;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+
+      .code-col {
+        font-family: monospace;
+        font-size: 0.65rem;
+        color: #555;
+      }
+
+      .char-col {
+        font-weight: bold;
+        color: #d13438;
+      }
+
+      thead th {
+        background-color: #f9f9f9;
+        color: #666;
+        font-weight: 600;
+        border-right: 1px solid #eee;
+      }
+      thead th:last-child {
+        border-right: none;
+      }
+
+      /* Rodapé */
+      footer {
+        margin-top: 10px;
+        font-size: 0.75rem;
+        color: #999;
+        text-align: center;
+        border-top: 1px solid #e0e0e0;
+        width: 100%;
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+
+      footer p {
+        margin-bottom: 5px;
+      }
+
+      .footer-links a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 0.7rem;
+        font-weight: normal;
+      }
+
+      .footer-links a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 600px) {
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+          display: block;
+        }
+        thead tr {
+          position: absolute;
+          top: -9999px;
+          left: -9999px;
+        }
+        tr {
+          margin: 0 0 1rem 0;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          padding: 5px;
+        }
+        td {
+          border: none;
+          position: relative;
+          padding-left: 50%;
+          text-align: left;
+          white-space: normal;
+          width: 100%;
+        }
+        td:before {
+          position: absolute;
+          top: 6px;
+          left: 6px;
+          width: 45%;
+          padding-right: 10px;
+          white-space: nowrap;
+          font-weight: bold;
+          content: attr(data-label);
+        }
+        .footer-links {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Ajuste de nomes de arquivos para Microsoft Teams 365</h1>
+        <p class="desc">
+          Ferramenta de compatibilidade para MS Teams 365. Resolve conflitos de
+          nomes de arquivos que utilizam caracteres não permitidos. Os
+          caracteres proibidos correspondem aos mesmos do NTFS e (#, %).
+          Substitui caracteres inválidos por códigos unicode, gerando nomes
+          válidos para anexar documentos online.
+        </p>
+      </header>
+
+      <!-- Seção 1: Codificar -->
+      <section class="section-card">
+        <div class="section-header">
+          1. Substituir Caracteres Proibidos (Codificar)
+        </div>
+
+        <label for="encodeInput">Nome Original:</label>
+        <textarea
+          id="encodeInput"
+          placeholder="Cole aqui o nome de arquivo que contém caracteres proibidos (ex: #ITA0=C01CUC01AG100)"
+        ></textarea>
+
+        <!-- ORDEM ALTERADA: Converter Nome -> Box -> Copiar Resultado -->
+        <div class="actions">
+          <button class="btn-primary" onclick="processEncode()">
+            Converter Nome
+          </button>
+          <div class="result-box" id="encodeOutput"></div>
+          <button class="btn-secondary" onclick="copyText('encodeOutput')">
+            Copiar Resultado
+          </button>
+        </div>
+      </section>
+
+      <!-- Seção 2: Decodificar -->
+      <section class="section-card">
+        <div class="section-header">
+          2. Restaurar Nome Original (Decodificar)
+        </div>
+
+        <label for="decodeInput">Nome Modificado:</label>
+        <textarea
+          id="decodeInput"
+          placeholder="Cole aqui o nome de arquivo com código unicode (ex: _x0023_ITA0=C01CUC01AG100)"
+        ></textarea>
+
+        <!-- ORDEM ALTERADA: Restaurar Nome -> Box -> Copiar Resultado -->
+        <div class="actions">
+          <button class="btn-primary" onclick="processDecode()">
+            Restaurar Nome
+          </button>
+          <div class="result-box" id="decodeOutput"></div>
+          <button class="btn-secondary" onclick="copyText('decodeOutput')">
+            Copiar Resultado
+          </button>
+        </div>
+      </section>
+
+      <!-- Tabela de Referência -->
+      <section class="section-card">
+        <div class="section-header">Tabela de Conversão (Compacta)</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Char</th>
+              <th>Código</th>
+              <th>Char</th>
+              <th>Código</th>
+              <th>Char</th>
+              <th>Código</th>
+            </tr>
+          </thead>
+          <tbody id="refTable">
+            <!-- Preenchido via JS -->
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <footer>
+      <p>Mauricio Menon & GLM4.7</p>
+      <p class="footer-links">
+        Links Recomendados:
+        <a
+          href="https://symbl.cc/pt/unicode-table/#latin-extended-b"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Tabela Unicode (Symbl.cc)</a
+        >
+        e
+        <a
+          href="https://www.unicode.org/charts"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Unicode Charts Oficiais (Unicode.org)</a
+        >
+      </p>
+    </footer>
+
+    <script>
+      // Mapa de caracteres proibidos para códigos Hexadecimais seguros
+      const map = {
+        "\\": "_x005C_",
+        "/": "_x002F_",
+        ":": "_x003A_",
+        "*": "_x002A_",
+        "?": "_x003F_",
+        '"': "_x0022_",
+        "<": "_x003C_",
+        ">": "_x003E_",
+        "|": "_x007C_",
+        "#": "_x0023_",
+        "%": "_x0025_",
+      };
+
+      // Armazena os timers para limpar se necessário
+      const timers = {};
+      // Armazena o último resultado válido para restaurar após notificação
+      const lastValidResult = {
+        encodeOutput: "",
+        decodeOutput: "",
+      };
+
+      // Preenche a tabela
+      const tbody = document.getElementById("refTable");
+      const entries = Object.entries(map);
+      let rowsHTML = "";
+      for (let i = 0; i < entries.length; i += 3) {
+        let rowContent = "";
+        for (let j = 0; j < 3; j++) {
+          if (entries[i + j]) {
+            const char = entries[i + j][0];
+            const code = entries[i + j][1];
+            rowContent += `<td class="char-col" data-label="Char">'${char}'</td><td class="code-col" data-label="Código">${code}</td>`;
+          } else {
+            rowContent += `<td data-label="Char"></td><td data-label="Código"></td>`;
+          }
+        }
+        rowsHTML += `<tr>${rowContent}</tr>`;
+      }
+      tbody.innerHTML = rowsHTML;
+
+      /**
+       * Função unificada para atualizar a caixa de resultado.
+       * Tipos suportados: 'error', 'result', 'notification'
+       */
+      function updateBox(elementId, text, type) {
+        const el = document.getElementById(elementId);
+
+        // Limpa qualquer timer existente (atende ao requisito: interrompe se outra ação ocorrer)
+        if (timers[elementId]) {
+          clearTimeout(timers[elementId]);
+          timers[elementId] = null;
+        }
+
+        el.textContent = text;
+
+        // Remove todas as classes de estado anteriores
+        el.classList.remove("is-error", "is-result", "is-notification");
+
+        // Adiciona a nova classe baseada no tipo
+        if (type === "error") el.classList.add("is-error");
+        if (type === "result") el.classList.add("is-result");
+        if (type === "notification") el.classList.add("is-notification");
+
+        // Se for erro, agenda limpeza automática após 30 segundos (comportamento padrão)
+        if (type === "error") {
+          timers[elementId] = setTimeout(() => {
+            el.textContent = "Aguardando entrada...";
+            el.classList.remove("is-error", "is-result", "is-notification");
+            lastValidResult[elementId] = "";
+          }, 30000);
+        }
+      }
+
+      function processEncode() {
+        const input = document.getElementById("encodeInput").value;
+        if (!input.trim()) {
+          updateBox(
+            "encodeOutput",
+            "Campo obrigatório: Digite um nome para converter.",
+            "error",
+          );
+          return;
+        }
+
+        const symbols = Object.keys(map).sort((a, b) => b.length - a.length);
+        const escaped = symbols
+          .map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+          .join("|");
+        const regex = new RegExp(`(${escaped})`, "g");
+
+        let result = input.replace(regex, (m) => map[m]);
+
+        if (result.startsWith(".") || result.startsWith(" "))
+          result = "_" + result;
+        if (result.endsWith(".") || result.endsWith(" ")) result = result + "_";
+
+        lastValidResult["encodeOutput"] = result;
+        updateBox("encodeOutput", result, "result");
+      }
+
+      function processDecode() {
+        const input = document.getElementById("decodeInput").value;
+        if (!input.trim()) {
+          updateBox(
+            "decodeOutput",
+            "Campo obrigatório: Digite um nome para restaurar.",
+            "error",
+          );
+          return;
+        }
+
+        let result = input;
+        for (const [char, code] of Object.entries(map)) {
+          result = result.split(code).join(char);
+        }
+
+        lastValidResult["decodeOutput"] = result;
+        updateBox("decodeOutput", result, "result");
+      }
+
+      function copyText(elementId) {
+        const el = document.getElementById(elementId);
+        const text = el.textContent;
+
+        // Não faz nada se estiver vazio ou em estado de erro/aviso
+        if (
+          !text ||
+          !text.trim() ||
+          text === "Aguardando entrada..." ||
+          text.includes("Campo obrigatório")
+        )
+          return;
+
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            // Salva o texto do resultado atual antes de substituir pela notificação
+            const savedResult = lastValidResult[elementId];
+
+            // Exibe notificação usando a classe .is-notification
+            updateBox(
+              elementId,
+              "Copiado para a área de transferência!",
+              "notification",
+            );
+
+            // Timer de 15 segundos para restaurar o resultado (.is-result)
+            timers[elementId] = setTimeout(() => {
+              if (savedResult) {
+                // Restaura o resultado anterior com o estilo de 'result'
+                updateBox(elementId, savedResult, "result");
+              } else {
+                // Caso raro onde não haja resultado salvo, volta ao neutro
+                el.textContent = "Aguardando entrada...";
+                el.classList.remove("is-notification");
+              }
+            }, 15000); // 15 segundos exatos
+          })
+          .catch(() => {
+            alert("Não foi possível copiar automaticamente.");
+          });
+      }
+    </script>
+  </body>
+</html>
